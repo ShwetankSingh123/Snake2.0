@@ -5,12 +5,17 @@ public class FoodSpawner : MonoBehaviour
 {
     [Header("Refs")]
     public SnakeController snake;     // drag your SnakeHead here (or it'll auto-find)
-    public GameObject foodPrefab;     // assign in Inspector
+
+    [Header("Prefabs")]
+    public GameObject foodPrefab;       // normal
+    public GameObject goldenFoodPrefab; // golden
+    public GameObject bombFoodPrefab;   // bomb
 
     [Header("Spawn Settings")]
     [SerializeField] int maxAttempts = 4096;
 
-    private GameObject currentFood;
+    private GameObject normalFood;   // always 1
+    private List<GameObject> specials = new List<GameObject>(); // golden/bomb
 
     void Awake()
     {
@@ -26,46 +31,69 @@ public class FoodSpawner : MonoBehaviour
             return;
         }
 
-        SpawnFood(); // initial spawn
+        SpawnNormalFood(); // initial spawn
+        InvokeRepeating(nameof(SpawnSpecialFood), 5f, 7f);
+        // every 7s, try to spawn a special
     }
 
-    public void SpawnFood()
+    // === Normal Food ===
+    public void SpawnNormalFood()
     {
-        if (foodPrefab == null || snake == null || Board.Instance == null) return;
+        if (normalFood != null) Destroy(normalFood);
 
-        if (currentFood != null) Destroy(currentFood);
+        Vector2Int cell = FindFreeCell();
+        normalFood = Instantiate(foodPrefab, snake.GridToWorld(cell), Quaternion.identity);
+        normalFood.tag = "Food";
 
+        var food = normalFood.GetComponent<Food>();
+        if (food) { food.type = FoodType.Normal; food.lifeTime = 0f; } // permanent
+    }
+
+    // === Specials (Golden / Bomb) ===
+    private void SpawnSpecialFood()
+    {
+        // If a special already exists, skip
+        specials.RemoveAll(item => item == null); // clean up destroyed refs
+        if (specials.Count > 0) return;           //  don't spawn another
+
+        // 30% chance nothing spawns this cycle
+        if (Random.value < 0.3f) return;
+
+        Vector2Int cell = FindFreeCell();
+
+        GameObject prefab = (Random.value < 0.5f) ? goldenFoodPrefab : bombFoodPrefab;
+        GameObject special = Instantiate(prefab, snake.GridToWorld(cell), Quaternion.identity);
+        special.tag = "Food";
+
+        var food = special.GetComponent<Food>();
+        if (food)
+        {
+            food.type = (prefab == goldenFoodPrefab) ? FoodType.Golden : FoodType.Bomb;
+            food.lifeTime = 5f; // disappear after 5s
+        }
+
+        specials.Add(special);
+    }
+
+
+    // === Utility ===
+    private Vector2Int FindFreeCell()
+    {
         var b = Board.Instance;
         var occupied = new HashSet<Vector2Int>(snake.OccupiedCells());
 
-        int width = b.maxX - b.minX + 1;
-        int height = b.maxY - b.minY + 1;
-        int freeCells = width * height - occupied.Count;
-        if (freeCells <= 0)
-        {
-            Debug.LogWarning("[FoodSpawner] No free cells to spawn food.");
-            return;
-        }
-
         Vector2Int cell;
-        int attempts = 0;
+        int guard = 0;
         do
         {
             cell = new Vector2Int(
                 Random.Range(b.minX, b.maxX + 1),
                 Random.Range(b.minY, b.maxY + 1)
             );
-            attempts++;
-            if (attempts >= maxAttempts)
-            {
-                Debug.LogWarning($"[FoodSpawner] Max attempts reached ({attempts}).");
-                return;
-            }
+            guard++;
+            if (guard > 5000) break;
         } while (occupied.Contains(cell));
 
-        Vector3 pos = snake.GridToWorld(cell);
-        currentFood = Instantiate(foodPrefab, pos, Quaternion.identity);
-        currentFood.tag = "Food";
-        // Optional: Debug.Log($"[FoodSpawner] Spawned at cell {cell} (world {pos}).");
+        return cell;
     }
 }

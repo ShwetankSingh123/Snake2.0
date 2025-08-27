@@ -954,7 +954,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodSpawner
   snake: {fileID: 1802715223}
-  foodPrefab: {fileID: 5771593414641154506, guid: 669c0037b238f1643b37f3bd0f5dc399, type: 3}
+  foodPrefab: {fileID: 5771593414641154506, guid: a46c9abd0d95ecc4d8ccae07ed507b6f, type: 3}
+  goldenFoodPrefab: {fileID: 5771593414641154506, guid: ec70783126b2f694996bf56903a3d7c6, type: 3}
+  bombFoodPrefab: {fileID: 5771593414641154506, guid: 669c0037b238f1643b37f3bd0f5dc399, type: 3}
   maxAttempts: 4096
 --- !u!1 &1506501129
 GameObject:
@@ -1123,8 +1125,8 @@ MonoBehaviour:
   moveRate: 0.2
   cellSize: 1
   bodyPrefab: {fileID: 5688763060221860621, guid: 10c45783603ba0e4a954539b8d35f37e, type: 3}
-  gridMoveDir: {x: 1, y: 0}
   gridPosition: {x: 0, y: 0}
+  gridMoveDir: {x: 1, y: 0}
 --- !u!212 &1802715225
 SpriteRenderer:
   m_ObjectHideFlags: 0
