@@ -96,4 +96,10 @@ public class FoodSpawner : MonoBehaviour
 
         return cell;
     }
+
+    public void NotifySpecialDestroyed(GameObject special)
+    {
+        specials.Remove(special);
+    }
+
 }

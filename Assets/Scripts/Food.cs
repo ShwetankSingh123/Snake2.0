@@ -48,4 +48,18 @@ public class Food : MonoBehaviour
             default: return 1;
         }
     }
+
+    void OnDestroy()
+    {
+        // If this was a special, remove from spawner’s list
+        if (type == FoodType.Golden || type == FoodType.Bomb)
+        {
+            var spawner = FindObjectOfType<FoodSpawner>();
+            if (spawner != null)
+            {
+                spawner.NotifySpecialDestroyed(gameObject);
+            }
+        }
+    }
+
 }
