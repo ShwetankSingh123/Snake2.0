@@ -38,6 +38,11 @@ public class SnakeController : MonoBehaviour
 
     void Update()
     {
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(0); // reload scene
+        }
+
         moveTimer -= Time.deltaTime;
         if (moveTimer <= 0f)
         {
@@ -93,11 +98,13 @@ public class SnakeController : MonoBehaviour
             Grow();
             Destroy(other.gameObject);
             FindObjectOfType<FoodSpawner>().SpawnFood();
+            ScoreManager.Instance.AddScore(1);
         }
 
         if (other.CompareTag("Wall") || other.CompareTag("SnakeBody"))
         {
             Debug.Log("Game Over!");
+            ScoreManager.Instance.GameOver();
             // TODO: restart logic
         }
     }
