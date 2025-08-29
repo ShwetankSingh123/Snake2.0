@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem; // New Input System
@@ -23,7 +24,11 @@ public class SnakeController : MonoBehaviour
     [SerializeField] private Sprite headSprite;
     [SerializeField] private Sprite bodySprite;
     [SerializeField] private Sprite tailSprite;
+    [SerializeField] private Sprite headNormal;
+    [SerializeField] private Sprite headTongue;
+    [SerializeField] private Sprite headBlink;
 
+    private float animationTimer;
     private SpriteRenderer headSR;
 
 
@@ -60,6 +65,17 @@ public class SnakeController : MonoBehaviour
         {
             moveTimer += moveRate;
             Step();
+        }
+
+        animationTimer -= Time.deltaTime;
+        if (animationTimer <= 0f)
+        {
+            int r = Random.Range(0, 10); // 10% chance
+            if (r < 2) headSR.sprite = headTongue;
+            else if (r < 4) headSR.sprite = headBlink;
+            else headSR.sprite = headNormal;
+
+            animationTimer = Random.Range(0.1f, 0.3f); // every 0.5–2 sec
         }
     }
 
@@ -196,6 +212,7 @@ public class SnakeController : MonoBehaviour
                 {
                     FindObjectOfType<FoodSpawner>().SpawnNormalFood();
                 }
+                StartCoroutine(PopEffect(transform)); // head pops
             }
 
             Destroy(other.gameObject);
@@ -212,6 +229,22 @@ public class SnakeController : MonoBehaviour
             if (score) score.GameOver();
             else Debug.Log("Game Over!");
         }
+    }
+
+    private IEnumerator PopEffect(Transform target)
+    {
+        Vector3 original = target.localScale;
+        Vector3 enlarged = original * 1.2f;
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime * 10f;
+            target.localScale = Vector3.Lerp(original, enlarged, Mathf.Sin(t * Mathf.PI));
+            yield return null;
+        }
+
+        target.localScale = original;
     }
 
     // ===== Helpers used by FoodSpawner =====
