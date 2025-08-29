@@ -20,8 +20,18 @@ public class SnakeController : MonoBehaviour
     // stores where the tail USED to be before the latest move (so we can grow there safely)
     private Vector3 lastTailPrevWorldPos;
 
+    [SerializeField] private Sprite headSprite;
+    [SerializeField] private Sprite bodySprite;
+    [SerializeField] private Sprite tailSprite;
+
+    private SpriteRenderer headSR;
+
+
+
     void Awake()
     {
+        headSR = GetComponent<SpriteRenderer>();
+
         controls = new SnakeControls();
         controls.Snake.Up.performed += ctx => { if (gridMoveDir != Vector2Int.down) gridMoveDir = Vector2Int.up; };
         controls.Snake.Down.performed += ctx => { if (gridMoveDir != Vector2Int.up) gridMoveDir = Vector2Int.down; };
@@ -78,7 +88,53 @@ public class SnakeController : MonoBehaviour
 
         // after the loop, 'prev' holds the previous position of the LAST segment (the tail)
         lastTailPrevWorldPos = prev;
+
+        UpdateSnakeVisuals();
     }
+
+    private void UpdateSnakeVisuals()
+    {
+        //  Head is always this GameObject
+        headSR.sprite = headSprite;
+
+        if (gridMoveDir == Vector2Int.up) headSR.transform.rotation = Quaternion.Euler(0, 0, 180);
+        else if (gridMoveDir == Vector2Int.right) headSR.transform.rotation = Quaternion.Euler(0, 0, 90);
+        else if (gridMoveDir == Vector2Int.down) headSR.transform.rotation = Quaternion.Euler(0, 0, 0);
+        else if (gridMoveDir == Vector2Int.left) headSR.transform.rotation = Quaternion.Euler(0, 0, -90);
+
+        for (int i = 0; i < snakeBody.Count; i++)
+        {
+            SpriteRenderer sr = snakeBody[i].GetComponent<SpriteRenderer>();
+
+            if (i == snakeBody.Count - 1)
+            {
+                // --- TAIL ---
+                sr.sprite = tailSprite;
+
+                // Determine direction of tail
+                Vector3 tailPos = snakeBody[i].position;
+                Vector3 prevPos = (i > 0) ? snakeBody[i - 1].position : transform.position;
+
+                Vector3 dir = (prevPos - tailPos).normalized;
+
+                float z = 0f;
+                if (dir == Vector3.up) z = 180f;
+                else if (dir == Vector3.right) z = 90f;
+                else if (dir == Vector3.down) z = 0f;
+                else if (dir == Vector3.left) z = -90f;
+
+                snakeBody[i].rotation = Quaternion.Euler(0f, 0f, z);
+            }
+            else
+            {
+                // --- BODY ---
+                sr.sprite = bodySprite;
+                snakeBody[i].rotation = Quaternion.identity;
+            }
+        }
+    }
+
+
 
     private void WrapWithinBounds()
     {
