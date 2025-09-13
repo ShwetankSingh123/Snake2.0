@@ -682,8 +682,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4284572001
-  m_fontColor: {r: 0.381132, g: 0.381132, b: 0.381132, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -957,11 +957,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 840c086854b57534798aa651a5afa147, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Board
+  planeMode: 1
+  cellSize: 1
+  planeCoord: 0
   minX: -8
   maxX: 8
   minY: -4
   maxY: 4
-  cellSize: 1
 --- !u!1 &1002794797
 GameObject:
   m_ObjectHideFlags: 0
@@ -979,7 +981,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1002794798
 RectTransform:
   m_ObjectHideFlags: 0
