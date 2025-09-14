@@ -1,7 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem; // New Input System
+
+[Serializable]
+public class SnakeSaveData
+{
+    public int score;
+    public Vector2Int headPosition;
+    public Vector2Int direction;
+    public List<Vector2Int> bodyPositions;
+    public Vector2Int foodPosition;
+}
 
 public class SnakeController : MonoBehaviour
 {
@@ -30,6 +41,20 @@ public class SnakeController : MonoBehaviour
 
     private float animationTimer;
     private SpriteRenderer headSR;
+
+    public Vector2Int GridPosition => gridPosition;
+    public Vector2Int MoveDirection => gridMoveDir;
+    public List<Vector2Int> BodyPositions
+    {
+        get
+        {
+            List<Vector2Int> positions = new List<Vector2Int>();
+            foreach (var t in snakeBody)
+                positions.Add(WorldToGrid(t.position));
+            return positions;
+        }
+    }
+
 
 
 
@@ -70,14 +95,36 @@ public class SnakeController : MonoBehaviour
         animationTimer -= Time.deltaTime;
         if (animationTimer <= 0f)
         {
-            int r = Random.Range(0, 10); // 10% chance
+            int r = UnityEngine.Random.Range(0, 10); // 10% chance
             if (r < 2) headSR.sprite = headTongue;
             else if (r < 4) headSR.sprite = headBlink;
             else headSR.sprite = headNormal;
 
-            animationTimer = Random.Range(0.1f, 0.3f); // every 0.5–2 sec
+            animationTimer = UnityEngine.Random.Range(0.1f, 0.3f); // every 0.5–2 sec
         }
     }
+
+    public void RestoreState(Vector2Int headPos, Vector2Int direction, List<Vector2Int> bodyPos)
+    {
+        gridPosition = headPos;
+        gridMoveDir = direction;
+
+        transform.position = GridToWorld(gridPosition);
+
+        // Clear old body
+        foreach (var part in snakeBody)
+            Destroy(part.gameObject);
+        snakeBody.Clear();
+
+        // Rebuild body from saved positions
+        foreach (var pos in bodyPos)
+        {
+            Transform newPart = Instantiate(bodyPrefab, GridToWorld(pos), Quaternion.identity);
+            newPart.gameObject.tag = "SnakeBody";
+            snakeBody.Add(newPart);
+        }
+    }
+
 
     private void Step()
     {

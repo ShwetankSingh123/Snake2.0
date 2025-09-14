@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
 public enum GameState
@@ -34,6 +35,29 @@ public class GameManager : MonoBehaviour
 
         LoadSave();
         GoToMainMenu();
+    }
+
+    public void SaveGame()
+    {
+        SnakeSaveData data = new SnakeSaveData();
+        data.score = scoreManager.CurrentScore;
+        data.headPosition = snake.GridPosition;
+        data.direction = snake.MoveDirection;
+        data.bodyPositions = new List<Vector2Int>(snake.BodyPositions);
+        data.foodPosition = spawner.CurrentFoodGridPosition;
+
+        SaveSystem.Save(data, "snake_save");
+    }
+
+    public void LoadGame()
+    {
+        if (!SaveSystem.SaveExists("snake_save")) return;
+
+        SnakeSaveData data = SaveSystem.Load<SnakeSaveData>("snake_save");
+
+        scoreManager.SetScore(data.score);
+        snake.RestoreState(data.headPosition, data.direction, data.bodyPositions);
+        spawner.RestoreFood(data.foodPosition);
     }
 
     private void LoadSave()

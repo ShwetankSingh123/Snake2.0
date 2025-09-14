@@ -6,45 +6,64 @@ public class ScoreManager : MonoBehaviour
     public static ScoreManager Instance { get; private set; }
 
     [Header("UI")]
-    public TMP_Text scoreText;
-    public TMP_Text gameOverText;
+    [SerializeField] private TMP_Text scoreText;
+    [SerializeField] private TMP_Text gameOverText;
 
-    private int score = 0;
+    public int CurrentScore { get; private set; }
     private int bestScore = 0;
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
     }
 
     void Start()
     {
-        score = 0;
+        CurrentScore = 0;
         gameOverText.gameObject.SetActive(false);
-        // Load best score from PlayerPrefs
+
+        // Load best score
         bestScore = PlayerPrefs.GetInt("BestScore", 0);
         UpdateScoreUI();
     }
 
     public void AddScore(int amount)
     {
-        score += amount;
-        if (score > bestScore) bestScore = score;
+        CurrentScore += amount;
+
+        if (CurrentScore > bestScore)
+            bestScore = CurrentScore;
+
+        UpdateScoreUI();
+    }
+
+    public void SetScore(int value)
+    {
+        CurrentScore = value;
+
+        if (CurrentScore > bestScore)
+            bestScore = CurrentScore;
+
         UpdateScoreUI();
     }
 
     public void GameOver()
     {
         // Save best score if beaten
-        if (score > bestScore)
+        if (CurrentScore > bestScore)
         {
-            bestScore = score;
+            bestScore = CurrentScore;
             PlayerPrefs.SetInt("BestScore", bestScore);
             PlayerPrefs.Save();
         }
+
         gameOverText.gameObject.SetActive(true);
-        gameOverText.text = $"GAME OVER\nScore: {score}\nBest: {bestScore}\nPress R to Restart";
+        gameOverText.text = $"GAME OVER\nScore: {CurrentScore}\nBest: {bestScore}\nPress R to Restart";
     }
 
     public void Restart()
@@ -56,6 +75,7 @@ public class ScoreManager : MonoBehaviour
 
     private void UpdateScoreUI()
     {
-        scoreText.text = $"Score: {score}   Best: {bestScore}";
+        if (scoreText != null)
+            scoreText.text = $"Score: {CurrentScore}   Best: {bestScore}";
     }
 }

@@ -17,6 +17,11 @@ public class FoodSpawner : MonoBehaviour
     private GameObject normalFood;   // always 1
     private List<GameObject> specials = new List<GameObject>(); // golden/bomb
 
+    // This is the variable you were missing
+    private GameObject currentFood;
+
+    public Vector2Int CurrentFoodGridPosition { get; private set; }
+
     void Awake()
     {
         if (snake == null) snake = FindObjectOfType<SnakeController>();
@@ -47,6 +52,12 @@ public class FoodSpawner : MonoBehaviour
 
         var food = normalFood.GetComponent<Food>();
         if (food) { food.type = FoodType.Normal; food.lifeTime = 0f; } // permanent
+
+        // Save the grid position so saves/restores can use it
+        CurrentFoodGridPosition = cell;
+
+        // Keep `currentFood` reference in sync (if other code expects it)
+        currentFood = normalFood;
     }
 
     // === Specials (Golden / Bomb) ===
@@ -75,6 +86,24 @@ public class FoodSpawner : MonoBehaviour
         specials.Add(special);
     }
 
+    // Restore the normal food to a specific grid cell (used by save/load)
+    public void RestoreFood(Vector2Int pos)
+    {
+        // destroy any existing normal food (we're restoring it)
+        if (normalFood != null) Destroy(normalFood);
+
+        CurrentFoodGridPosition = pos;
+        Vector3 worldPos = snake.GridToWorld(pos);
+
+        normalFood = Instantiate(foodPrefab, worldPos, Quaternion.identity);
+        normalFood.tag = "Food";
+
+        var food = normalFood.GetComponent<Food>();
+        if (food) { food.type = FoodType.Normal; food.lifeTime = 0f; }
+
+        // keep currentFood reference in sync if some other code reads it
+        currentFood = normalFood;
+    }
 
     // === Utility ===
     private Vector2Int FindFreeCell()
@@ -91,7 +120,7 @@ public class FoodSpawner : MonoBehaviour
                 Random.Range(b.minY, b.maxY + 1)
             );
             guard++;
-            if (guard > 5000) break;
+            if (guard > maxAttempts) break;
         } while (occupied.Contains(cell));
 
         return cell;
@@ -101,5 +130,4 @@ public class FoodSpawner : MonoBehaviour
     {
         specials.Remove(special);
     }
-
 }
