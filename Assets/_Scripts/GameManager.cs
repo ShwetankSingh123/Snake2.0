@@ -72,16 +72,38 @@ public class GameManager : MonoBehaviour
 
         currentState = GameState.Playing;
         Time.timeScale = 1f;
-        SceneManager.LoadScene("GameScene");
+
+        // reset score
+        if (scoreManager != null) scoreManager.SetScore(0);
+
+        // reset snake to a default fresh state (head at (0,0), facing right, no body)
+        if (snake != null)
+        {
+            snake.RestoreState(Vector2Int.zero, Vector2Int.right, new List<Vector2Int>());
+        }
+
+        // spawn a fresh normal food
+        if (spawner != null) spawner.SpawnNormalFood();
+
+        if (uiManager != null)
+        {
+            // optional methods; if you implemented them keep these lines, otherwise remove or implement in UIManager
+            uiManager.HideMainMenuPanel();
+            uiManager.HideGameOverUI();
+            uiManager.ShowGameplayUI();
+        }
+        //SceneManager.LoadScene("GameScene");
     }
 
     public void ContinueGame()
     {
-        if (!hasSave) return;
+        // only allow if we have a save flag
+        if (!PlayerPrefs.HasKey("HasSave") || PlayerPrefs.GetInt("HasSave") != 1) return;
 
         currentState = GameState.Playing;
         Time.timeScale = 1f;
-        SceneManager.LoadScene("GameScene");
+
+        LoadGame();
     }
 
     public void GameOver()
@@ -90,6 +112,8 @@ public class GameManager : MonoBehaviour
 
         currentState = GameState.GameOver;
         Time.timeScale = 0f;
+
+        scoreManager.FinalizeScore();
 
         if (uiManager != null)
             uiManager.ShowGameOverUI();
@@ -110,7 +134,10 @@ public class GameManager : MonoBehaviour
     public void GoToMainMenu()
     {
         currentState = GameState.MainMenu;
-        SceneManager.LoadScene("MainMenuScene");
+        Time.timeScale = 0f; // pause game if needed
+
+        if (uiManager != null)
+            uiManager.ShowMainMenuUI();
     }
 
     public void ExitGame()

@@ -251,7 +251,7 @@ public class SnakeController : MonoBehaviour
                 // Bomb logic (optional: instant game over)
                 if (food.type == FoodType.Bomb)
                 {
-                    ScoreManager.Instance.GameOver();
+                    GameManager.Instance.GameOver();
                 }
 
                 // Respawn only if it was NORMAL
@@ -272,7 +272,7 @@ public class SnakeController : MonoBehaviour
         {
             // If you still ever get a same-frame false hit, you can early-out here
             // if (Time.time - lastEatTime < 0.02f) return;
-            var score = ScoreManager.Instance;
+            var score = GameManager.Instance;
             if (score) score.GameOver();
             else Debug.Log("Game Over!");
         }

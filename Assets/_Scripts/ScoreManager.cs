@@ -6,11 +6,10 @@ public class ScoreManager : MonoBehaviour
     public static ScoreManager Instance { get; private set; }
 
     [Header("UI")]
-    [SerializeField] private TMP_Text scoreText;
-    [SerializeField] private TMP_Text gameOverText;
+    [SerializeField] private UIManager _uiManager;
 
     public int CurrentScore { get; private set; }
-    private int bestScore = 0;
+    public int bestScore { get; private set; }
 
     void Awake()
     {
@@ -25,7 +24,6 @@ public class ScoreManager : MonoBehaviour
     void Start()
     {
         CurrentScore = 0;
-        gameOverText.gameObject.SetActive(false);
 
         // Load best score
         bestScore = PlayerPrefs.GetInt("BestScore", 0);
@@ -50,9 +48,10 @@ public class ScoreManager : MonoBehaviour
             bestScore = CurrentScore;
 
         UpdateScoreUI();
+        _uiManager.UpdateBestScore();
     }
 
-    public void GameOver()
+    public void FinalizeScore()
     {
         // Save best score if beaten
         if (CurrentScore > bestScore)
@@ -61,21 +60,10 @@ public class ScoreManager : MonoBehaviour
             PlayerPrefs.SetInt("BestScore", bestScore);
             PlayerPrefs.Save();
         }
-
-        gameOverText.gameObject.SetActive(true);
-        gameOverText.text = $"GAME OVER\nScore: {CurrentScore}\nBest: {bestScore}\nPress R to Restart";
-    }
-
-    public void Restart()
-    {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(
-            UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex
-        );
     }
 
     private void UpdateScoreUI()
     {
-        if (scoreText != null)
-            scoreText.text = $"Score: {CurrentScore}   Best: {bestScore}";
+        _uiManager.UpdateScoreUI(CurrentScore);
     }
 }
