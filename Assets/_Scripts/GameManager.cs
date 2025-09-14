@@ -101,6 +101,9 @@ public class GameManager : MonoBehaviour
         if (!PlayerPrefs.HasKey("HasSave") || PlayerPrefs.GetInt("HasSave") != 1) return;
 
         currentState = GameState.Playing;
+        uiManager.HideGameOverUI();
+        uiManager.HideMainMenuPanel();
+        uiManager.ShowGameplayUI();
         Time.timeScale = 1f;
 
         LoadGame();
@@ -118,21 +121,23 @@ public class GameManager : MonoBehaviour
         if (uiManager != null)
             uiManager.ShowGameOverUI();
 
-        // After 3 sec -> return to menu
-        Invoke(nameof(GoToMainMenuAfterGameOver), 3f);
-    }
-
-    private void GoToMainMenuAfterGameOver()
-    {
+        SaveSystem.DeleteSave("snake_save");
         PlayerPrefs.SetInt("HasSave", 0);
         PlayerPrefs.Save();
+        // After 3 sec -> return to menu
+        StartCoroutine(GoToMainMenuAfterDelay(3f));
+    }
 
+    private System.Collections.IEnumerator GoToMainMenuAfterDelay(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
         Time.timeScale = 1f;
         GoToMainMenu();
     }
 
     public void GoToMainMenu()
     {
+        Debug.Log(PlayerPrefs.GetInt("HasSave"));
         currentState = GameState.MainMenu;
         Time.timeScale = 0f; // pause game if needed
 
@@ -143,5 +148,21 @@ public class GameManager : MonoBehaviour
     public void ExitGame()
     {
         Application.Quit();
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (currentState == GameState.Playing)
+        {
+            SaveGame();
+        }
+    }
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus && currentState == GameState.Playing)
+        {
+            SaveGame();
+        }
     }
 }

@@ -99,6 +99,11 @@ public class UIManager : MonoBehaviour
 
     public void ShowMainMenuUI()
     {
+        // Enable/disable Continue based on save
+        bool hasSave = PlayerPrefs.HasKey("HasSave") && PlayerPrefs.GetInt("HasSave") == 1;
+        if (_continueButton != null)
+            _continueButton.gameObject.SetActive(hasSave);
+
         // Enable Main Menu panel
         _mainMenuPanel.SetActive(true);
 

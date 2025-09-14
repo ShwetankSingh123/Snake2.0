@@ -176,7 +176,7 @@ public class Board : MonoBehaviour
         minY = Mathf.CeilToInt(minWorldYorZ / cellSize);
         maxY = Mathf.FloorToInt(maxWorldYorZ / cellSize);
 
-        Debug.Log($"[Board] Dynamic Bounds computed: X[{minX},{maxX}] Y[{minY},{maxY}] (planeMode={planeMode})");
+        //Debug.Log($"[Board] Dynamic Bounds computed: X[{minX},{maxX}] Y[{minY},{maxY}] (planeMode={planeMode})");
     }
 
 #if UNITY_EDITOR

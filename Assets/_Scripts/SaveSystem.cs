@@ -9,8 +9,9 @@ public static class SaveSystem
     {
         if (!Directory.Exists(saveFolder))
             Directory.CreateDirectory(saveFolder);
-
+        
         string json = JsonUtility.ToJson(data, true);
+        Debug.Log(json);
         File.WriteAllText(saveFolder + fileName + ".json", json);
         Debug.Log($"[SaveSystem] Saved to {saveFolder}{fileName}.json");
     }

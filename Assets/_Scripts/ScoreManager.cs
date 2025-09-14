@@ -34,8 +34,8 @@ public class ScoreManager : MonoBehaviour
     {
         CurrentScore += amount;
 
-        if (CurrentScore > bestScore)
-            bestScore = CurrentScore;
+        //if (CurrentScore > bestScore)
+        //    bestScore = CurrentScore;
 
         UpdateScoreUI();
     }
@@ -44,8 +44,8 @@ public class ScoreManager : MonoBehaviour
     {
         CurrentScore = value;
 
-        if (CurrentScore > bestScore)
-            bestScore = CurrentScore;
+        //if (CurrentScore > bestScore)
+        //    bestScore = CurrentScore;
 
         UpdateScoreUI();
         _uiManager.UpdateBestScore();
