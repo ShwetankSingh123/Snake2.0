@@ -42,6 +42,11 @@ public class SnakeController : MonoBehaviour
     private float animationTimer;
     private SpriteRenderer headSR;
 
+    private Vector2 touchStart;
+    private bool isSwiping;
+    [SerializeField] private float minSwipeDistance = 50f; // pixels
+
+
     public Vector2Int GridPosition => gridPosition;
     public Vector2Int MoveDirection => gridMoveDir;
     public List<Vector2Int> BodyPositions
@@ -67,6 +72,21 @@ public class SnakeController : MonoBehaviour
         controls.Snake.Down.performed += ctx => { if (gridMoveDir != Vector2Int.up) gridMoveDir = Vector2Int.down; };
         controls.Snake.Left.performed += ctx => { if (gridMoveDir != Vector2Int.right) gridMoveDir = Vector2Int.left; };
         controls.Snake.Right.performed += ctx => { if (gridMoveDir != Vector2Int.left) gridMoveDir = Vector2Int.right; };
+
+        controls.Touch.PrimaryContact.started += ctx =>
+        {
+            touchStart = controls.Touch.PrimaryPosition.ReadValue<Vector2>();
+            isSwiping = true;
+        };
+
+        controls.Touch.PrimaryContact.canceled += ctx =>
+        {
+            if (!isSwiping) return;
+            Vector2 touchEnd = controls.Touch.PrimaryPosition.ReadValue<Vector2>();
+            DetectSwipe(touchStart, touchEnd);
+            isSwiping = false;
+        };
+
     }
 
     void OnEnable() => controls.Enable();
@@ -122,6 +142,29 @@ public class SnakeController : MonoBehaviour
             Transform newPart = Instantiate(bodyPrefab, GridToWorld(pos), Quaternion.identity);
             newPart.gameObject.tag = "SnakeBody";
             snakeBody.Add(newPart);
+        }
+    }
+
+    private void DetectSwipe(Vector2 start, Vector2 end)
+    {
+        Vector2 swipe = end - start;
+        if (swipe.magnitude < minSwipeDistance) return;
+
+        if (Mathf.Abs(swipe.x) > Mathf.Abs(swipe.y))
+        {
+            // horizontal swipe
+            if (swipe.x > 0 && gridMoveDir != Vector2Int.left)
+                gridMoveDir = Vector2Int.right;
+            else if (swipe.x < 0 && gridMoveDir != Vector2Int.right)
+                gridMoveDir = Vector2Int.left;
+        }
+        else
+        {
+            // vertical swipe
+            if (swipe.y > 0 && gridMoveDir != Vector2Int.down)
+                gridMoveDir = Vector2Int.up;
+            else if (swipe.y < 0 && gridMoveDir != Vector2Int.up)
+                gridMoveDir = Vector2Int.down;
         }
     }
 
