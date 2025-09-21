@@ -242,13 +242,25 @@ public class SnakeController : MonoBehaviour
                 // Score
                 ScoreManager.Instance.AddScore(food.GetScore());
 
-                // Growth
-                for (int i = 0; i < food.GetGrowth(); i++)
+                if (food.type == FoodType.Normal)
                 {
-                    Grow();
+                    FindObjectOfType<FoodSpawner>().OnNormalFoodEaten();
+                    FindObjectOfType<FoodSpawner>().SpawnNormalFood();
                 }
 
-                // Bomb logic (optional: instant game over)
+
+                // Growth / Shrink
+                int growth = food.GetGrowth();
+                if (growth > 0)
+                {
+                    for (int i = 0; i < growth; i++) Grow();
+                }
+                else if (growth < 0)
+                {
+                    for (int i = 0; i < -growth; i++) Shrink();
+                }
+
+                // Bomb logic (instant game over)
                 if (food.type == FoodType.Bomb)
                 {
                     GameManager.Instance.GameOver();
@@ -259,24 +271,33 @@ public class SnakeController : MonoBehaviour
                 {
                     FindObjectOfType<FoodSpawner>().SpawnNormalFood();
                 }
+
                 StartCoroutine(PopEffect(transform)); // head pops
             }
 
             Destroy(other.gameObject);
-            //FindObjectOfType<FoodSpawner>().SpawnNormalFood();
             return;
         }
 
         // Self or wall collision
         if (other.CompareTag("SnakeBody") || other.CompareTag("Wall"))
         {
-            // If you still ever get a same-frame false hit, you can early-out here
-            // if (Time.time - lastEatTime < 0.02f) return;
-            var score = GameManager.Instance;
-            if (score) score.GameOver();
+            var gm = GameManager.Instance;
+            if (gm) gm.GameOver();
             else Debug.Log("Game Over!");
         }
     }
+
+    private void Shrink()
+    {
+        if (snakeBody.Count > 0)
+        {
+            Transform last = snakeBody[snakeBody.Count - 1];
+            snakeBody.RemoveAt(snakeBody.Count - 1);
+            Destroy(last.gameObject);
+        }
+    }
+
 
     private IEnumerator PopEffect(Transform target)
     {

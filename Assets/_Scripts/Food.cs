@@ -4,7 +4,8 @@ public enum FoodType
 {
     Normal,
     Golden,
-    Bomb
+    Bomb,
+    Shrink,
 }
 
 public class Food : MonoBehaviour
@@ -60,9 +61,11 @@ public class Food : MonoBehaviour
 
     public int GetScore() =>
         type == FoodType.Golden ? 5 :
-        type == FoodType.Bomb ? -1 : 1;
+        type == FoodType.Bomb ? -1 :
+        type == FoodType.Shrink ? 0 : 1;
 
     public int GetGrowth() =>
         type == FoodType.Golden ? 3 :
-        type == FoodType.Bomb ? 0 : 1;
+        type == FoodType.Bomb ? 0 :
+        type == FoodType.Shrink ? -2 : 1;
 }

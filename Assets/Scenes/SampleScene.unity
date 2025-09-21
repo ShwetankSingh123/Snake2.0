@@ -1220,7 +1220,7 @@ GameObject:
   - component: {fileID: 643696048}
   - component: {fileID: 643696047}
   m_Layer: 0
-  m_Name: Plane
+  m_Name: ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2283,6 +2283,7 @@ MonoBehaviour:
   foodPrefab: {fileID: 5771593414641154506, guid: a46c9abd0d95ecc4d8ccae07ed507b6f, type: 3}
   goldenFoodPrefab: {fileID: 5771593414641154506, guid: ec70783126b2f694996bf56903a3d7c6, type: 3}
   bombFoodPrefab: {fileID: 5771593414641154506, guid: 669c0037b238f1643b37f3bd0f5dc399, type: 3}
+  _shrinkfoodPrefab: {fileID: 5771593414641154506, guid: 1c5f165ec0a41e64cb2d0431051911d3, type: 3}
   maxAttempts: 4096
 --- !u!114 &1389298449
 MonoBehaviour:

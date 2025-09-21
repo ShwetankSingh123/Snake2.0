@@ -10,6 +10,7 @@ public class FoodSpawner : MonoBehaviour
     public GameObject foodPrefab;       // normal
     public GameObject goldenFoodPrefab; // golden
     public GameObject bombFoodPrefab;   // bomb
+    [SerializeField] private GameObject _shrinkfoodPrefab;
 
     [Header("Spawn Settings")]
     [SerializeField] int maxAttempts = 4096;
@@ -19,6 +20,10 @@ public class FoodSpawner : MonoBehaviour
 
     // This is the variable you were missing
     private GameObject currentFood;
+
+    private int normalFoodsEaten = 0;
+    private int specialStep = 0; // 0 = golden, 1 = bomb, 2 = shrink
+
 
     public Vector2Int CurrentFoodGridPosition { get; private set; }
 
@@ -37,7 +42,7 @@ public class FoodSpawner : MonoBehaviour
         }
 
         SpawnNormalFood(); // initial spawn
-        InvokeRepeating(nameof(SpawnSpecialFood), 5f, 7f);
+        //InvokeRepeating(nameof(SpawnSpecialFood), 5f, 7f);
         // every 7s, try to spawn a special
     }
 
@@ -61,30 +66,6 @@ public class FoodSpawner : MonoBehaviour
     }
 
     // === Specials (Golden / Bomb) ===
-    private void SpawnSpecialFood()
-    {
-        // If a special already exists, skip
-        specials.RemoveAll(item => item == null); // clean up destroyed refs
-        if (specials.Count > 0) return;           //  don't spawn another
-
-        // 30% chance nothing spawns this cycle
-        if (Random.value < 0.3f) return;
-
-        Vector2Int cell = FindFreeCell();
-
-        GameObject prefab = (Random.value < 0.5f) ? goldenFoodPrefab : bombFoodPrefab;
-        GameObject special = Instantiate(prefab, snake.GridToWorld(cell), Quaternion.identity);
-        special.tag = "Food";
-
-        var food = special.GetComponent<Food>();
-        if (food)
-        {
-            food.type = (prefab == goldenFoodPrefab) ? FoodType.Golden : FoodType.Bomb;
-            food.lifeTime = 5f; // disappear after 5s
-        }
-
-        specials.Add(special);
-    }
 
     // Restore the normal food to a specific grid cell (used by save/load)
     public void RestoreFood(Vector2Int pos)
@@ -104,6 +85,58 @@ public class FoodSpawner : MonoBehaviour
         // keep currentFood reference in sync if some other code reads it
         currentFood = normalFood;
     }
+
+    public void OnNormalFoodEaten()
+    {
+        normalFoodsEaten++;
+
+        if (specialStep == 0 && normalFoodsEaten >= 5)
+        {
+            SpawnSpecial(FoodType.Golden);
+            normalFoodsEaten = 0;
+            specialStep = 1;
+        }
+        else if (specialStep == 1 && normalFoodsEaten >= 4)
+        {
+            SpawnSpecial(FoodType.Bomb);
+            normalFoodsEaten = 0;
+            specialStep = 2;
+        }
+        else if (specialStep == 2 && normalFoodsEaten >= 3)
+        {
+            SpawnSpecial(FoodType.Shrink);
+            normalFoodsEaten = 0;
+            specialStep = 0; // loop back
+        }
+    }
+
+    private void SpawnSpecial(FoodType type)
+    {
+        Vector2Int cell = FindFreeCell();
+
+        GameObject prefab = null;
+        switch (type)
+        {
+            case FoodType.Golden: prefab = goldenFoodPrefab; break;
+            case FoodType.Bomb: prefab = bombFoodPrefab; break;
+            case FoodType.Shrink: prefab = _shrinkfoodPrefab; break;
+        }
+
+        if (prefab == null) return;
+
+        GameObject special = Instantiate(prefab, snake.GridToWorld(cell), Quaternion.identity);
+        special.tag = "Food";
+
+        var food = special.GetComponent<Food>();
+        if (food != null)
+        {
+            food.type = type;
+            food.lifeTime = 5f; // or whatever duration
+        }
+
+        specials.Add(special);
+    }
+
 
     // === Utility ===
     private Vector2Int FindFreeCell()
