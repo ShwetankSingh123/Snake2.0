@@ -135,6 +135,7 @@ public class FoodSpawner : MonoBehaviour
         }
 
         specials.Add(special);
+        if (FoodVFX.Instance != null) FoodVFX.Instance.PlaySpawn(type, snake.GridToWorld(cell));
     }
 
 

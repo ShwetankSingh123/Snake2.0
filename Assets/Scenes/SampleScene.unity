@@ -798,6 +798,58 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!1 &443212545
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 443212547}
+  - component: {fileID: 443212546}
+  m_Layer: 0
+  m_Name: FoodVFX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &443212546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 443212545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4512856de9cebe4e9422bd457d804b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FoodVFX
+  normalEatVFX: {fileID: 7789287088244459499, guid: 733c0ceb4302b714184a14ab242b8479, type: 3}
+  goldenEatVFX: {fileID: 7865812133928414440, guid: a21d640e3e036e641892ef5f3cddcfd2, type: 3}
+  bombEatVFX: {fileID: 4712867498991730421, guid: 40ba5bf7c0970de46bdbb840cc8e29cd, type: 3}
+  shrinkEatVFX: {fileID: 9134422807365398434, guid: 52bbf8314c762c342ac25c9b91e045d1, type: 3}
+  normalSpawnVFX: {fileID: 7523611670142067058, guid: d4a8ca4e82c4ba9439fdb20c7aff7ca7, type: 3}
+  goldenSpawnVFX: {fileID: 1165153520159698638, guid: 83de3a742a16d0b49be68d59f642f137, type: 3}
+  bombSpawnVFX: {fileID: 1210928118485094621, guid: 9388eae5d158ff8449804922dafb6353, type: 3}
+  shrinkSpawnVFX: {fileID: 6616060098756047541, guid: 0692a79f3b0dd844795f59e0d2879dcc, type: 3}
+--- !u!4 &443212547
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 443212545}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &471132742
 GameObject:
   m_ObjectHideFlags: 0
@@ -2759,6 +2811,7 @@ MonoBehaviour:
   headNormal: {fileID: -1066033165, guid: 2ad24e02eed68594f9863da68c3eb59b, type: 3}
   headTongue: {fileID: -101971476, guid: dbcd7689567164a41a173a9823bcf2ee, type: 3}
   headBlink: {fileID: 1970980240, guid: d6de0ed55be8e5746a88f63310012d85, type: 3}
+  minSwipeDistance: 50
 --- !u!212 &1802715225
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3009,3 +3062,4 @@ SceneRoots:
   - {fileID: 1506501133}
   - {fileID: 189779875}
   - {fileID: 643696050}
+  - {fileID: 443212547}
