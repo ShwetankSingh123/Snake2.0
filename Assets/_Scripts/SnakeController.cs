@@ -316,6 +316,11 @@ public class SnakeController : MonoBehaviour
                 }
 
                 StartCoroutine(PopEffect(transform)); // head pops
+
+                // VFX: capture position before destroying food
+                Vector3 foodPos = other.transform.position;
+                FoodType eatenType = food.type;
+                if (FoodVFX.Instance != null) FoodVFX.Instance.PlayEat(eatenType, foodPos);
             }
 
             Destroy(other.gameObject);
