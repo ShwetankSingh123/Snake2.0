@@ -120,7 +120,7 @@ public class SnakeController : MonoBehaviour
             else if (r < 4) headSR.sprite = headBlink;
             else headSR.sprite = headNormal;
 
-            animationTimer = UnityEngine.Random.Range(0.1f, 0.3f); // every 0.5–2 sec
+            animationTimer = UnityEngine.Random.Range(0.1f, 0.3f); // every 0.5ï¿½2 sec
         }
     }
 
@@ -287,8 +287,8 @@ public class SnakeController : MonoBehaviour
 
                 if (food.type == FoodType.Normal)
                 {
-                    FindObjectOfType<FoodSpawner>().OnNormalFoodEaten();
-                    FindObjectOfType<FoodSpawner>().SpawnNormalFood();
+                    FindAnyObjectByType<FoodSpawner>().OnNormalFoodEaten();
+                    FindAnyObjectByType<FoodSpawner>().SpawnNormalFood();
                 }
 
 
@@ -312,7 +312,7 @@ public class SnakeController : MonoBehaviour
                 // Respawn only if it was NORMAL
                 if (food.type == FoodType.Normal)
                 {
-                    FindObjectOfType<FoodSpawner>().SpawnNormalFood();
+                    FindAnyObjectByType<FoodSpawner>().SpawnNormalFood();
                 }
 
                 StartCoroutine(PopEffect(transform)); // head pops

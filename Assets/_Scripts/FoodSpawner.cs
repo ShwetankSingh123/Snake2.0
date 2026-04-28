@@ -29,7 +29,7 @@ public class FoodSpawner : MonoBehaviour
 
     void Awake()
     {
-        if (snake == null) snake = FindObjectOfType<SnakeController>();
+        if (snake == null) snake = FindAnyObjectByType<SnakeController>();
         if (foodPrefab == null) Debug.LogError("[FoodSpawner] foodPrefab not assigned.");
     }
 

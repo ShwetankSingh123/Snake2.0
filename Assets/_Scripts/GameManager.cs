@@ -19,7 +19,6 @@ public class GameManager : MonoBehaviour
     public ScoreManager scoreManager;
     public UIManager uiManager;
 
-    private bool isGameOver = false;
     private GameState currentState;
     private bool hasSave = false;
 
