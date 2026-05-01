@@ -136,7 +136,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &183013645
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2331,14 +2331,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc5842a6f1f37904890b3e3ad457dce8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodSpawner
-  snake: {fileID: 0}
-  spawner: {fileID: 0}
-  scoreManager: {fileID: 0}
-  uiManager: {fileID: 0}
-  easySpeed: 0.28
-  normalSpeed: 0.2
-  hardSpeed: 0.14
-  extremeSpeed: 0.08
+  snake: {fileID: 1802715223}
+  foodPrefab: {fileID: 5771593414641154506, guid: a46c9abd0d95ecc4d8ccae07ed507b6f, type: 3}
+  goldenFoodPrefab: {fileID: 5771593414641154506, guid: ec70783126b2f694996bf56903a3d7c6, type: 3}
+  bombFoodPrefab: {fileID: 5771593414641154506, guid: 669c0037b238f1643b37f3bd0f5dc399, type: 3}
+  shrinkFoodPrefab: {fileID: 5771593414641154506, guid: 1c5f165ec0a41e64cb2d0431051911d3, type: 3}
+  speedFoodPrefab: {fileID: 0}
+  slowFoodPrefab: {fileID: 0}
+  ghostFoodPrefab: {fileID: 0}
+  shieldFoodPrefab: {fileID: 0}
+  maxAttempts: 4096
+  normalFoodsBeforeSpecial: 4
 --- !u!114 &1389298449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2492,25 +2495,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 726fd810118fb384baf0b4a963180940, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  gameplayPanel: {fileID: 0}
-  currentScoreText: {fileID: 0}
-  bestScoreText: {fileID: 0}
+  gameplayPanel: {fileID: 183013644}
+  currentScoreText: {fileID: 609301949}
+  bestScoreText: {fileID: 1800368143}
   comboText: {fileID: 0}
   comboPanel: {fileID: 0}
   shieldIcon: {fileID: 0}
   ghostIcon: {fileID: 0}
-  specialTimerPanel: {fileID: 0}
-  specialTimerFill: {fileID: 0}
+  specialTimerPanel: {fileID: 523517419}
+  specialTimerFill: {fileID: 1192936644}
   specialTimerLabel: {fileID: 0}
-  mainMenuPanel: {fileID: 0}
-  continueButton: {fileID: 0}
-  newGameButton: {fileID: 0}
-  exitButton: {fileID: 0}
+  mainMenuPanel: {fileID: 2016825192}
+  continueButton: {fileID: 1752401775}
+  newGameButton: {fileID: 1104461130}
+  exitButton: {fileID: 223033757}
   difficultyDropdown: {fileID: 0}
   pausePanel: {fileID: 0}
   resumeButton: {fileID: 0}
   mainMenuFromPauseButton: {fileID: 0}
-  gameOverPanel: {fileID: 0}
+  gameOverPanel: {fileID: 471132742}
   gameOverScoreText: {fileID: 0}
   gameOverBestText: {fileID: 0}
   newBestLabel: {fileID: 0}
