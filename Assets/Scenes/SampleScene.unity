@@ -2328,15 +2328,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 1389298446}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e056c9945c8028c469f9c5ec5b49b208, type: 3}
+  m_Script: {fileID: 11500000, guid: fc5842a6f1f37904890b3e3ad457dce8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FoodSpawner
-  snake: {fileID: 1802715223}
-  foodPrefab: {fileID: 5771593414641154506, guid: a46c9abd0d95ecc4d8ccae07ed507b6f, type: 3}
-  goldenFoodPrefab: {fileID: 5771593414641154506, guid: ec70783126b2f694996bf56903a3d7c6, type: 3}
-  bombFoodPrefab: {fileID: 5771593414641154506, guid: 669c0037b238f1643b37f3bd0f5dc399, type: 3}
-  _shrinkfoodPrefab: {fileID: 5771593414641154506, guid: 1c5f165ec0a41e64cb2d0431051911d3, type: 3}
-  maxAttempts: 4096
+  snake: {fileID: 0}
+  spawner: {fileID: 0}
+  scoreManager: {fileID: 0}
+  uiManager: {fileID: 0}
+  easySpeed: 0.28
+  normalSpeed: 0.2
+  hardSpeed: 0.14
+  extremeSpeed: 0.08
 --- !u!114 &1389298449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2353,6 +2355,10 @@ MonoBehaviour:
   spawner: {fileID: 1389298448}
   scoreManager: {fileID: 1506501134}
   uiManager: {fileID: 1506501135}
+  easySpeed: 0.28
+  normalSpeed: 0.2
+  hardSpeed: 0.14
+  extremeSpeed: 0.08
 --- !u!1 &1506501129
 GameObject:
   m_ObjectHideFlags: 0
@@ -2471,7 +2477,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe6151fb4937a9147ac8d46c15db0154, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScoreManager
-  _uiManager: {fileID: 1506501135}
+  uiManager: {fileID: 0}
+  comboDecayTime: 3
+  maxCombo: 10
 --- !u!114 &1506501135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2484,18 +2492,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 726fd810118fb384baf0b4a963180940, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  _gameplayPanel: {fileID: 183013644}
-  _currentScoreText: {fileID: 609301949}
-  _bestScoreText: {fileID: 1800368143}
-  _specialTimerPanel: {fileID: 523517419}
-  _specialTimerFill: {fileID: 1192936644}
-  _mainMenuPanel: {fileID: 2016825192}
-  _continueButton: {fileID: 1752401775}
-  _newGameButton: {fileID: 1104461130}
-  _optionsButton: {fileID: 596206980}
-  _exitButton: {fileID: 223033757}
-  _gameOverPanel: {fileID: 471132742}
-  _gameOverText: {fileID: 1131978469}
+  gameplayPanel: {fileID: 0}
+  currentScoreText: {fileID: 0}
+  bestScoreText: {fileID: 0}
+  comboText: {fileID: 0}
+  comboPanel: {fileID: 0}
+  shieldIcon: {fileID: 0}
+  ghostIcon: {fileID: 0}
+  specialTimerPanel: {fileID: 0}
+  specialTimerFill: {fileID: 0}
+  specialTimerLabel: {fileID: 0}
+  mainMenuPanel: {fileID: 0}
+  continueButton: {fileID: 0}
+  newGameButton: {fileID: 0}
+  exitButton: {fileID: 0}
+  difficultyDropdown: {fileID: 0}
+  pausePanel: {fileID: 0}
+  resumeButton: {fileID: 0}
+  mainMenuFromPauseButton: {fileID: 0}
+  gameOverPanel: {fileID: 0}
+  gameOverScoreText: {fileID: 0}
+  gameOverBestText: {fileID: 0}
+  newBestLabel: {fileID: 0}
 --- !u!1 &1752401773
 GameObject:
   m_ObjectHideFlags: 0
@@ -2803,14 +2821,19 @@ MonoBehaviour:
   moveRate: 0.2
   cellSize: 1
   bodyPrefab: {fileID: 5688763060221860621, guid: 10c45783603ba0e4a954539b8d35f37e, type: 3}
-  gridPosition: {x: 0, y: 0}
-  gridMoveDir: {x: 1, y: 0}
+  minMoveRate: 0.05
+  speedScoreStep: 10
+  speedDecrement: 0.005
   headSprite: {fileID: -101971476, guid: dbcd7689567164a41a173a9823bcf2ee, type: 3}
   bodySprite: {fileID: -1733480423, guid: dbcd7689567164a41a173a9823bcf2ee, type: 3}
   tailSprite: {fileID: 1181733720, guid: dbcd7689567164a41a173a9823bcf2ee, type: 3}
   headNormal: {fileID: -1066033165, guid: 2ad24e02eed68594f9863da68c3eb59b, type: 3}
   headTongue: {fileID: -101971476, guid: dbcd7689567164a41a173a9823bcf2ee, type: 3}
   headBlink: {fileID: 1970980240, guid: d6de0ed55be8e5746a88f63310012d85, type: 3}
+  gridPosition: {x: 0, y: 0}
+  gridMoveDir: {x: 1, y: 0}
+  isGhost: 0
+  hasShield: 0
   minSwipeDistance: 50
 --- !u!212 &1802715225
 SpriteRenderer:
