@@ -219,6 +219,7 @@ public class SnakeController : MonoBehaviour
 
     public void Grow()
     {
+        Debug.Log("[SnakeController] Grow the body");
         Transform newPart = Instantiate(bodyPrefab, lastTailPrevWorldPos, Quaternion.identity);
         newPart.gameObject.tag = "SnakeBody";
         var col = newPart.GetComponent<Collider2D>();
@@ -234,9 +235,12 @@ public class SnakeController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log("Snake has colleded with something");
         if (other.CompareTag("Food"))
         {
+            Debug.Log($"[Snake] Trigger with Food tag! obj={other.gameObject.name}");
             Food food = other.GetComponent<Food>();
+            Debug.Log($"[Snake] Food component: {food}, ScoreManager={ScoreManager.Instance}, GameManager={GameManager.Instance}");
             if (food != null)
             {
                 Debug.Log($"[Snake] Ate food: {food.type}, score={food.GetScore()}");
