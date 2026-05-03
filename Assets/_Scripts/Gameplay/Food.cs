@@ -47,7 +47,7 @@ public class Food : MonoBehaviour
         if (lifeTime > 0f)
             UIManager.Instance?.StopSpecialTimer();
 
-        var spawner = FindAnyObjectByType<FoodSpawner>();
+        var spawner = GameManager.Instance?.spawner;
         if (type != FoodType.Normal)
             spawner?.NotifySpecialDestroyed(gameObject);
     }

@@ -57,8 +57,8 @@ public class GameManager : MonoBehaviour
         CurrentState = GameState.Playing;
         Time.timeScale = 1f;
 
+        if (snake != null) snake.gameObject.SetActive(true);
         SetDifficulty(CurrentDifficulty);
-
         scoreManager?.SetScore(0);
         spawner?.ClearAllFood();
         snake?.RestoreState(Vector2Int.zero, Vector2Int.right, new List<Vector2Int>());
@@ -86,7 +86,7 @@ public class GameManager : MonoBehaviour
         uiManager?.HideGameOverUI();
         uiManager?.HidePausePanel();
         uiManager?.ShowGameplayUI();
-
+        if (snake != null) snake.gameObject.SetActive(true);
         LoadGame();
         AudioManager.Instance?.PlayGameMusic();
     }
@@ -141,6 +141,10 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         AudioManager.Instance?.PlayMenuMusic();
         uiManager?.ShowMainMenuUI();
+
+        // Hide only the snake (FoodSpawner is on same GO as GameManager, can't hide it)
+        if (snake != null) snake.gameObject.SetActive(false);
+        spawner?.ClearAllFood();
     }
 
     public void ExitGame() => Application.Quit();

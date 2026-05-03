@@ -100,6 +100,10 @@ public class SnakeController : MonoBehaviour
 
     void Update()
     {
+        // Only move and animate when the game is actively Playing
+        if (GameManager.Instance == null || GameManager.Instance.CurrentState != GameState.Playing)
+            return;
+
         moveTimer -= Time.deltaTime;
         if (moveTimer <= 0f)
         {
@@ -235,6 +239,7 @@ public class SnakeController : MonoBehaviour
             Food food = other.GetComponent<Food>();
             if (food != null)
             {
+                Debug.Log($"[Snake] Ate food: {food.type}, score={food.GetScore()}");
                 int score = food.GetScore();
                 ScoreManager.Instance.AddScore(score);
                 ScoreManager.Instance.AddCombo();
@@ -273,7 +278,7 @@ public class SnakeController : MonoBehaviour
 
     private void ApplyFoodEffect(Food food)
     {
-        var spawner = FindAnyObjectByType<FoodSpawner>();
+        var spawner = GameManager.Instance?.spawner;
 
         switch (food.type)
         {

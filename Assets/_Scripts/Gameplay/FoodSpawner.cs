@@ -39,12 +39,17 @@ public class FoodSpawner : MonoBehaviour
 
     void Start()
     {
+        // GameManager controls food spawning via StartNewGame/ContinueGame
+        // Don't auto-spawn here to avoid duplicates
         if (Board.Instance == null) { Debug.LogError("[FoodSpawner] Board.Instance is null."); return; }
-        SpawnNormalFood();
     }
 
     public void SpawnNormalFood()
     {
+        Debug.Log($"[FoodSpawner] SpawnNormalFood called. snake={snake}, foodPrefab={foodPrefab}, Board={Board.Instance}");
+        if (snake == null) { Debug.LogError("[FoodSpawner] snake is NULL!"); return; }
+        if (foodPrefab == null) { Debug.LogError("[FoodSpawner] foodPrefab is NULL!"); return; }
+        if (Board.Instance == null) { Debug.LogError("[FoodSpawner] Board.Instance is NULL!"); return; }
         if (normalFood != null) Destroy(normalFood);
         Vector2Int cell = FindFreeCell();
         normalFood = Instantiate(foodPrefab, snake.GridToWorld(cell), Quaternion.identity);
@@ -52,7 +57,7 @@ public class FoodSpawner : MonoBehaviour
         var food = normalFood.GetComponent<Food>();
         if (food) { food.type = FoodType.Normal; food.lifeTime = 0f; }
         CurrentFoodGridPosition = cell;
-
+        Debug.Log($"[FoodSpawner] Spawned food at {cell}, normalFood={normalFood}");
         if (FoodVFX.Instance != null) FoodVFX.Instance.PlaySpawn(FoodType.Normal, snake.GridToWorld(cell));
     }
 
