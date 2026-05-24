@@ -94,7 +94,7 @@ public class SnakeController : MonoBehaviour
         gridPosition = WorldToGrid(transform.position);
         transform.position = GridToWorld(gridPosition);
         moveTimer = moveRate;
-        snakeBody.Clear();
+        //snakeBody.Clear();
         lastTailPrevWorldPos = transform.position;
     }
 
@@ -162,6 +162,7 @@ public class SnakeController : MonoBehaviour
         transform.position = GridToWorld(gridPosition);
 
         Vector3 prev = oldHeadWorld;
+        Debug.Log("[SnakeController]" + snakeBody.Count);
         for (int i = 0; i < snakeBody.Count; i++)
         {
             Vector3 temp = snakeBody[i].position;
@@ -184,9 +185,10 @@ public class SnakeController : MonoBehaviour
 
         // Tint head if shield active
         headSR.color = hasShield ? new Color(0.4f, 0.8f, 1f) : Color.white;
-
+        Debug.Log("[SnakeController]" + snakeBody.Count);
         for (int i = 0; i < snakeBody.Count; i++)
         {
+            Debug.Log("SnakeController " + i);
             SpriteRenderer sr = snakeBody[i].GetComponent<SpriteRenderer>();
             bool isTail = i == snakeBody.Count - 1;
             sr.sprite = isTail ? tailSprite : bodySprite;
@@ -386,13 +388,15 @@ public class SnakeController : MonoBehaviour
         gridPosition = headPos;
         gridMoveDir = direction;
         transform.position = GridToWorld(gridPosition);
-        foreach (var part in snakeBody) Destroy(part.gameObject);
-        snakeBody.Clear();
+        //foreach (var part in snakeBody) Destroy(part.gameObject);
+        //snakeBody.Clear();
+        Debug.Log("[SnakeController] cleared snakeBody first");
         foreach (var pos in bodyPos)
         {
             Transform newPart = Instantiate(bodyPrefab, GridToWorld(pos), Quaternion.identity);
             newPart.gameObject.tag = "SnakeBody";
             snakeBody.Add(newPart);
+            Debug.Log("[SnakeController] added a body to snake " + snakeBody.Count);
         }
         hasDirQueued = false;
         isGhost = false;
