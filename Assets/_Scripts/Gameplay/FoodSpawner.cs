@@ -10,8 +10,8 @@ public class FoodSpawner : MonoBehaviour
     public GameObject foodPrefab;
 
     [Header("Special Food Prefabs")]
-    public GameObject goldenFoodPrefab;
-    public GameObject bombFoodPrefab;
+    [SerializeField] private GameObject goldenFoodPrefab;
+    [SerializeField] private GameObject bombFoodPrefab;
     [SerializeField] private GameObject shrinkFoodPrefab;
     [SerializeField] private GameObject speedFoodPrefab;
     [SerializeField] private GameObject slowFoodPrefab;
@@ -83,6 +83,7 @@ public class FoodSpawner : MonoBehaviour
 
     private void SpawnNextSpecial()
     {
+        Debug.Log($"[FoodSpawner] SpawnNextSpecial called. poolIndex={poolIndex}, specialPool.Length={specialPool.Length}");
         FoodType next = specialPool[poolIndex % specialPool.Length];
         poolIndex++;
 
@@ -97,6 +98,8 @@ public class FoodSpawner : MonoBehaviour
 
     private void SpawnSpecial(FoodType type)
     {
+        Debug.Log($"[FoodSpawner] SpawnSpecial called. type= {type}");
+
         GameObject prefab = type switch
         {
             FoodType.Golden => goldenFoodPrefab,
@@ -108,8 +111,14 @@ public class FoodSpawner : MonoBehaviour
             FoodType.Shield => shieldFoodPrefab,
             _               => null,
         };
-        if (prefab == null) return;
 
+
+        if (prefab == null)
+        {
+            Debug.LogError($"[FoodSpawner] No prefab assigned for FoodType {type}. Cannot spawn special food.");
+            return;
+        } 
+            
         Vector2Int cell = FindFreeCell();
         GameObject special = Instantiate(prefab, snake.GridToWorld(cell), Quaternion.identity);
         special.tag = "Food";

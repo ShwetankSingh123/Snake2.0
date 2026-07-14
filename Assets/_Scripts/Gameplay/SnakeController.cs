@@ -162,7 +162,7 @@ public class SnakeController : MonoBehaviour
         transform.position = GridToWorld(gridPosition);
 
         Vector3 prev = oldHeadWorld;
-        Debug.Log("[SnakeController]" + snakeBody.Count);
+        //Debug.Log("[SnakeController]" + snakeBody.Count);
         for (int i = 0; i < snakeBody.Count; i++)
         {
             Vector3 temp = snakeBody[i].position;
@@ -185,10 +185,10 @@ public class SnakeController : MonoBehaviour
 
         // Tint head if shield active
         headSR.color = hasShield ? new Color(0.4f, 0.8f, 1f) : Color.white;
-        Debug.Log("[SnakeController]" + snakeBody.Count);
+        //Debug.Log("[SnakeController]" + snakeBody.Count);
         for (int i = 0; i < snakeBody.Count; i++)
         {
-            Debug.Log("SnakeController " + i);
+            //Debug.Log("SnakeController " + i);
             SpriteRenderer sr = snakeBody[i].GetComponent<SpriteRenderer>();
             bool isTail = i == snakeBody.Count - 1;
             sr.sprite = isTail ? tailSprite : bodySprite;

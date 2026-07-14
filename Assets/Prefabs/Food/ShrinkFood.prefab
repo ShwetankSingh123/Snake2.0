@@ -179,5 +179,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4d3d9a6046788a409ec5d038f776f66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Food
-  type: 0
-  lifeTime: 0
+  type: 3
+  lifeTime: 6
