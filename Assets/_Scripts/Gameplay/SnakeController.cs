@@ -385,23 +385,37 @@ public class SnakeController : MonoBehaviour
 
     public void RestoreState(Vector2Int headPos, Vector2Int direction, List<Vector2Int> bodyPos)
     {
+        // Destroy old body
+        foreach (var part in snakeBody)
+        {
+            if (part != null)
+                Destroy(part.gameObject);
+        }
+
+        snakeBody.Clear();
+
+        // Restore head
         gridPosition = headPos;
         gridMoveDir = direction;
         transform.position = GridToWorld(gridPosition);
-        //foreach (var part in snakeBody) Destroy(part.gameObject);
-        //snakeBody.Clear();
-        Debug.Log("[SnakeController] cleared snakeBody first");
+
+        // Restore body
         foreach (var pos in bodyPos)
         {
             Transform newPart = Instantiate(bodyPrefab, GridToWorld(pos), Quaternion.identity);
             newPart.gameObject.tag = "SnakeBody";
             snakeBody.Add(newPart);
-            Debug.Log("[SnakeController] added a body to snake " + snakeBody.Count);
         }
+
         hasDirQueued = false;
         isGhost = false;
         hasShield = false;
+
         moveRate = baseMoveRate;
+
+        lastTailPrevWorldPos = transform.position;
+
+        UpdateSnakeVisuals();
     }
 
     public Vector3 GridToWorld(Vector2Int gp) => new Vector3(gp.x * cellSize, gp.y * cellSize, 0f);
