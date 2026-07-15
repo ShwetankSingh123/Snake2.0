@@ -40,6 +40,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text gameOverBestText;
     [SerializeField] private TMP_Text newBestLabel;
 
+    [Space(10)]
+    [SerializeField] private Sprite _selectedButtonSprite;
+    [SerializeField] private Sprite _normalButtonSprite;
+
     private float timerDuration;
     private float timerRemaining;
     private bool timerActive;
