@@ -4,7 +4,7 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Almace.CustomUI
+namespace CustomUI
 {
     [RequireComponent(typeof(RectTransform))]
     public class CustomButton : Button
@@ -42,8 +42,8 @@ namespace Almace.CustomUI
             _rectTransform = GetComponent<RectTransform>();
 
             //_wiggleComponent = GetComponent<RandomUIWiggle>();
-            _pressTweenId = $"ButtonPress_{GetInstanceID()}";
-            _wiggleTweenId = $"ButtonWiggle_{GetInstanceID()}";
+            _pressTweenId = $"ButtonPress_{GetEntityId()}";
+            _wiggleTweenId = $"ButtonWiggle_{GetEntityId()}";
         }
 
         protected override void OnEnable()

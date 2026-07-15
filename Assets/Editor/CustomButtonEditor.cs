@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEditor.UI;
 
-namespace Almace.CustomUI
+namespace CustomUI
 {
     [CustomEditor(typeof(CustomButton))]
     public class CustomButtonEditor : ButtonEditor

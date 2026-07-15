@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using CustomUI;
 
 public class UIManager : MonoBehaviour
 {
@@ -25,15 +26,15 @@ public class UIManager : MonoBehaviour
 
     [Header("Main Menu")]
     [SerializeField] private GameObject mainMenuPanel;
-    [SerializeField] private Button continueButton;
-    [SerializeField] private Button newGameButton;
-    [SerializeField] private Button exitButton;
+    [SerializeField] private CustomButton continueButton;
+    [SerializeField] private CustomButton newGameButton;
+    [SerializeField] private CustomButton exitButton;
     [SerializeField] private TMP_Dropdown difficultyDropdown;
 
     [Header("Pause Panel")]
     [SerializeField] private GameObject pausePanel;
-    [SerializeField] private Button resumeButton;
-    [SerializeField] private Button mainMenuFromPauseButton;
+    [SerializeField] private CustomButton resumeButton;
+    [SerializeField] private CustomButton mainMenuFromPauseButton;
 
     [Header("Game Over Panel")]
     [SerializeField] private GameObject gameOverPanel;
