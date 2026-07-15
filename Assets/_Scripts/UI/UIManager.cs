@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class UIManager : MonoBehaviour
 {
@@ -56,6 +57,12 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
+        AddHoverEvents(continueButton);
+        AddHoverEvents(newGameButton);
+        AddHoverEvents(exitButton);
+        AddHoverEvents(resumeButton);
+        AddHoverEvents(mainMenuFromPauseButton);
+
         specialTimerPanel?.SetActive(false);
         gameOverPanel?.SetActive(false);
         pausePanel?.SetActive(false);
@@ -155,5 +162,36 @@ public class UIManager : MonoBehaviour
         if (gameOverScoreText) gameOverScoreText.text = cur.ToString();
         if (gameOverBestText)  gameOverBestText.text  = best.ToString();
         if (newBestLabel)      newBestLabel.gameObject.SetActive(isNew);
+    }
+
+    private void SetButtonSprite(Button button, Sprite sprite)
+    {
+        if (button == null) return;
+
+        Image image = button.GetComponent<Image>();
+        if (image != null)
+            image.sprite = sprite;
+    }
+
+    private void AddHoverEvents(Button button)
+    {
+        if (button == null) return;
+
+        EventTrigger trigger = button.GetComponent<EventTrigger>();
+
+        if (trigger == null)
+            trigger = button.gameObject.AddComponent<EventTrigger>();
+
+        trigger.triggers.Clear();
+
+        EventTrigger.Entry enter = new EventTrigger.Entry();
+        enter.eventID = EventTriggerType.PointerEnter;
+        enter.callback.AddListener((_) => SetButtonSprite(button, _selectedButtonSprite));
+        trigger.triggers.Add(enter);
+
+        EventTrigger.Entry exit = new EventTrigger.Entry();
+        exit.eventID = EventTriggerType.PointerExit;
+        exit.callback.AddListener((_) => SetButtonSprite(button, _normalButtonSprite));
+        trigger.triggers.Add(exit);
     }
 }
