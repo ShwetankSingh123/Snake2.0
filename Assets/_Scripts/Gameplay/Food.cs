@@ -19,7 +19,7 @@ public class Food : MonoBehaviour
 
     private float timer;
 
-    void OnEnable()
+    void Start()
     {
         timer = lifeTime;
         if (lifeTime > 0f)

@@ -116,16 +116,19 @@ public class UIManager : MonoBehaviour
     // ─── Timer ───────────────────────────────────
     public void StartSpecialTimer(float duration, Color color)
     {
+        Debug.Log($"Starting special timer for {duration} seconds with color {color}");
         timerDuration = timerRemaining = duration;
         timerActive = true;
-        specialTimerPanel?.SetActive(true);
+        //specialTimerPanel?.SetActive(true);
+        specialTimerFill.transform.parent.gameObject.SetActive(true);
         if (specialTimerFill) { specialTimerFill.fillAmount = 1f; specialTimerFill.color = color; }
     }
 
     public void StopSpecialTimer()
     {
         timerActive = false;
-        specialTimerPanel?.SetActive(false);
+        //specialTimerPanel?.SetActive(false);
+        specialTimerFill.transform.parent.gameObject.SetActive(false);
     }
 
     // ─── Status Effects ──────────────────────────
