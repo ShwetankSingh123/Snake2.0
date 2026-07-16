@@ -55,12 +55,12 @@ public class Food : MonoBehaviour
     private Color GetTimerColor() => type switch
     {
         FoodType.Golden => new Color(1f, 0.85f, 0f),
-        FoodType.Bomb   => new Color(1f, 0.2f, 0.2f),
-        FoodType.Shrink => new Color(0.6f, 0.2f, 1f),
-        FoodType.Speed  => new Color(0f, 1f, 0.5f),
-        FoodType.Slow   => new Color(0.2f, 0.6f, 1f),
-        FoodType.Ghost  => new Color(0.8f, 0.8f, 1f),
-        FoodType.Shield => new Color(0.3f, 0.8f, 1f),
+        FoodType.Bomb   => new Color(1f, 0f, 0f),
+        FoodType.Shrink => new Color(0.1415093f, 1f, 0.2901961f),
+        FoodType.Speed  => new Color(1f, 0.1188679f, 0.9354284f),
+        FoodType.Slow   => new Color(0.5267776f, 0.4886792f, 1f),
+        FoodType.Ghost  => new Color(0.5698112f, 0.1254362f, 0.04192944f),
+        FoodType.Shield => new Color(0.6075471f, 0.6075471f, 0.6075471f),
         _               => Color.white,
     };
 
