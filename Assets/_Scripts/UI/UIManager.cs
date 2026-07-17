@@ -29,7 +29,22 @@ public class UIManager : MonoBehaviour
     [SerializeField] private CustomButton continueButton;
     [SerializeField] private CustomButton newGameButton;
     [SerializeField] private CustomButton exitButton;
-    [SerializeField] private TMP_Dropdown difficultyDropdown;
+    [SerializeField] private CustomButton optionsButton;
+    [SerializeField] private CustomButton howToPlayButton;
+
+    [Header("Main Menu Panels")]
+    [SerializeField] private GameObject optionsPanel;
+    [SerializeField] private GameObject howToPlayPanel;
+    [SerializeField] private TMP_Text howToPlayText;
+
+    [Header("Difficulty Selection Panel")]
+    [SerializeField] private GameObject difficultySelectionPanel;
+    [SerializeField] private CustomButton easyButton;
+    [SerializeField] private CustomButton normalButton;
+    [SerializeField] private CustomButton hardButton;
+    [SerializeField] private CustomButton extremeButton;
+    [SerializeField] private CustomButton startGameButton;
+    [SerializeField] private CustomButton backFromDifficultyButton;
 
     [Header("Pause Panel")]
     [SerializeField] private GameObject pausePanel;
@@ -58,32 +73,57 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
+        // Hover visuals
         AddHoverEvents(continueButton);
         AddHoverEvents(newGameButton);
         AddHoverEvents(exitButton);
+        AddHoverEvents(optionsButton);
+        AddHoverEvents(howToPlayButton);
         AddHoverEvents(resumeButton);
         AddHoverEvents(mainMenuFromPauseButton);
+        AddHoverEvents(easyButton);
+        AddHoverEvents(normalButton);
+        AddHoverEvents(hardButton);
+        AddHoverEvents(extremeButton);
+        AddHoverEvents(startGameButton);
+        AddHoverEvents(backFromDifficultyButton);
 
+        // Panels initial state
         specialTimerPanel?.SetActive(false);
         gameOverPanel?.SetActive(false);
         pausePanel?.SetActive(false);
         comboPanel?.SetActive(false);
         shieldIcon?.SetActive(false);
         ghostIcon?.SetActive(false);
+        optionsPanel?.SetActive(false);
+        howToPlayPanel?.SetActive(false);
+        difficultySelectionPanel?.SetActive(false);
 
+        // Button listeners
         if (continueButton)  continueButton.onClick.AddListener(()  => GameManager.Instance.ContinueGame());
-        if (newGameButton)   newGameButton.onClick.AddListener(()   => GameManager.Instance.StartNewGame());
+        if (newGameButton)   newGameButton.onClick.AddListener(()   => OpenDifficultySelection());
         if (exitButton)      exitButton.onClick.AddListener(()      => GameManager.Instance.ExitGame());
+        if (optionsButton)   optionsButton.onClick.AddListener(()   => OpenOptionsPanel());
+        if (howToPlayButton) howToPlayButton.onClick.AddListener(() => OpenHowToPlay());
         if (resumeButton)    resumeButton.onClick.AddListener(()    => GameManager.Instance.ResumeGame());
         if (mainMenuFromPauseButton) mainMenuFromPauseButton.onClick.AddListener(() => GameManager.Instance.GoToMainMenu());
 
-        if (difficultyDropdown)
+        // Difficulty selection listeners
+        if (easyButton)  easyButton.onClick.AddListener(() => SelectDifficulty(Difficulty.Easy));
+        if (normalButton) normalButton.onClick.AddListener(() => SelectDifficulty(Difficulty.Normal));
+        if (hardButton)  hardButton.onClick.AddListener(() => SelectDifficulty(Difficulty.Hard));
+        if (extremeButton) extremeButton.onClick.AddListener(() => SelectDifficulty(Difficulty.Extreme));
+        if (startGameButton) startGameButton.onClick.AddListener(() => StartGameFromDifficulty());
+        if (backFromDifficultyButton) backFromDifficultyButton.onClick.AddListener(() => CloseDifficultySelection());
+
+        // HowToPlay content
+        if (howToPlayText)
         {
-            difficultyDropdown.ClearOptions();
-            difficultyDropdown.AddOptions(new System.Collections.Generic.List<string> { "Easy", "Normal", "Hard", "Extreme" });
-            difficultyDropdown.value = 1; // Normal default
-            difficultyDropdown.onValueChanged.AddListener(v => GameManager.Instance.SetDifficulty((Difficulty)v));
+            howToPlayText.text = "Objective:\nEat food to grow and score points. Avoid hitting walls or yourself.\n\nControls:\nArrow Keys / WASD to move. Esc to pause.\n\nFood Types and Effects:\n- Normal: regular growth and points.\n- Golden: extra points.\n- Bomb: ends the game if collected.\n- Shrink: reduces snake length.\n- Speed: increases movement speed.\n- Slow: reduces movement speed.\n- Ghost: pass through walls/obstacles for a short time.\n- Shield: protects from one collision.\n";
         }
+
+        // Default difficulty visual
+        SelectDifficulty(Difficulty.Normal);
     }
 
     void Update()
@@ -155,6 +195,9 @@ public class UIManager : MonoBehaviour
         gameplayPanel?.SetActive(false);
         gameOverPanel?.SetActive(false);
         pausePanel?.SetActive(false);
+        optionsPanel?.SetActive(false);
+        howToPlayPanel?.SetActive(false);
+        difficultySelectionPanel?.SetActive(false);
     }
 
     public void ShowGameOverUI()
@@ -166,6 +209,70 @@ public class UIManager : MonoBehaviour
         if (gameOverScoreText) gameOverScoreText.text = cur.ToString();
         if (gameOverBestText)  gameOverBestText.text  = best.ToString();
         if (newBestLabel)      newBestLabel.gameObject.SetActive(isNew);
+    }
+
+    // --- Main Menu / Difficulty / Options / HowToPlay ---
+    private Difficulty selectedDifficulty = Difficulty.Normal;
+
+    private void OpenDifficultySelection()
+    {
+        mainMenuPanel?.SetActive(false);
+        difficultySelectionPanel?.SetActive(true);
+        // ensure visuals reflect current selection
+        SetDifficultyButtonSprites();
+    }
+
+    private void CloseDifficultySelection()
+    {
+        difficultySelectionPanel?.SetActive(false);
+        mainMenuPanel?.SetActive(true);
+    }
+
+    private void SelectDifficulty(Difficulty diff)
+    {
+        selectedDifficulty = diff;
+        // apply immediately so other systems can read current difficulty if needed
+        GameManager.Instance.SetDifficulty(selectedDifficulty);
+        SetDifficultyButtonSprites();
+    }
+
+    private void StartGameFromDifficulty()
+    {
+        // GameManager already has difficulty set by SelectDifficulty
+        difficultySelectionPanel?.SetActive(false);
+        GameManager.Instance.StartNewGame();
+    }
+
+    private void OpenOptionsPanel()
+    {
+        optionsPanel?.SetActive(true);
+        mainMenuPanel?.SetActive(false);
+    }
+
+    public void CloseOptionsPanel()
+    {
+        optionsPanel?.SetActive(false);
+        mainMenuPanel?.SetActive(true);
+    }
+
+    private void OpenHowToPlay()
+    {
+        howToPlayPanel?.SetActive(true);
+        mainMenuPanel?.SetActive(false);
+    }
+
+    public void CloseHowToPlay()
+    {
+        howToPlayPanel?.SetActive(false);
+        mainMenuPanel?.SetActive(true);
+    }
+
+    private void SetDifficultyButtonSprites()
+    {
+        if (easyButton) SetButtonSprite(easyButton, selectedDifficulty == Difficulty.Easy ? _selectedButtonSprite : _normalButtonSprite);
+        if (normalButton) SetButtonSprite(normalButton, selectedDifficulty == Difficulty.Normal ? _selectedButtonSprite : _normalButtonSprite);
+        if (hardButton) SetButtonSprite(hardButton, selectedDifficulty == Difficulty.Hard ? _selectedButtonSprite : _normalButtonSprite);
+        if (extremeButton) SetButtonSprite(extremeButton, selectedDifficulty == Difficulty.Extreme ? _selectedButtonSprite : _normalButtonSprite);
     }
 
     private void SetButtonSprite(Button button, Sprite sprite)
