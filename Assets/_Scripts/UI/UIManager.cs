@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using CustomUI;
 
 public class UIManager : MonoBehaviour
 {
@@ -11,14 +12,14 @@ public class UIManager : MonoBehaviour
 
     [Header("Main Menu")]
     [SerializeField] private GameObject mainMenuPanel;
-    [SerializeField] private Button continueButton;
-    [SerializeField] private Button newGameButton;
-    [SerializeField] private Button howToPlayButton;
-    [SerializeField] private Button exitButton;
+    [SerializeField] private CustomButton continueButton;
+    [SerializeField] private CustomButton newGameButton;
+    [SerializeField] private CustomButton howToPlayButton;
+    [SerializeField] private CustomButton exitButton;
 
     // Bottom-right icons
-    [SerializeField] private Button musicToggleButton;
-    [SerializeField] private Button hapticsToggleButton;
+    [SerializeField] private CustomButton musicToggleButton;
+    [SerializeField] private CustomButton hapticsToggleButton;
     [SerializeField] private Image musicToggleIcon;
     [SerializeField] private Image hapticsToggleIcon;
     [SerializeField] private Sprite musicOnSprite;
@@ -32,12 +33,12 @@ public class UIManager : MonoBehaviour
 
     [Header("Difficulty Panel")]
     [SerializeField] private GameObject difficultyPanel;
-    [SerializeField] private Button diffLeftButton;
+    [SerializeField] private CustomButton diffLeftButton;
     [SerializeField] private TMP_Text difficultyNameText;
-    [SerializeField] private Button diffRightButton;
+    [SerializeField] private CustomButton diffRightButton;
     [SerializeField] private TMP_Text difficultyDescriptionText;
-    [SerializeField] private Button difficultyStartButton;
-    [SerializeField] private Button difficultyBackButton;
+    [SerializeField] private CustomButton difficultyStartButton;
+    [SerializeField] private CustomButton difficultyBackButton;
 
     private enum UIDifficulty { Easy = 0, Normal = 1, Hard = 2, Extreme = 3 }
     private UIDifficulty selectedDifficulty = UIDifficulty.Normal;
@@ -49,8 +50,19 @@ public class UIManager : MonoBehaviour
     [Header("How To Play Panel")]
     [SerializeField] private GameObject howToPlayPanel;
     [SerializeField] private ScrollRect howToPlayScrollRect;
-    [SerializeField] private Button howToPlayBackButton;
+    [SerializeField] private CustomButton howToPlayBackButton;
     [SerializeField] private TMP_Text howToPlayContentText;
+
+    // Individual food entries (allows richer layout with icons)
+    [Header("How To Play - Food Entries")]
+    [SerializeField] private TMP_Text normalFoodText;
+    [SerializeField] private TMP_Text goldenFoodText;
+    [SerializeField] private TMP_Text bombFoodText;
+    [SerializeField] private TMP_Text shrinkFoodText;
+    [SerializeField] private TMP_Text speedFoodText;
+    [SerializeField] private TMP_Text slowFoodText;
+    [SerializeField] private TMP_Text ghostFoodText;
+    [SerializeField] private TMP_Text shieldFoodText;
 
     #endregion
 
@@ -69,8 +81,8 @@ public class UIManager : MonoBehaviour
 
     [Header("Pause Panel")]
     [SerializeField] private GameObject pausePanel;
-    [SerializeField] private Button resumeButton;
-    [SerializeField] private Button mainMenuFromPauseButton;
+    [SerializeField] private CustomButton resumeButton;
+    [SerializeField] private CustomButton mainMenuFromPauseButton;
 
     #endregion
 
@@ -179,6 +191,15 @@ public class UIManager : MonoBehaviour
             howToPlayContentText.text =
                 "OBJECTIVE\n\nEat food.\nAvoid walls.\nAvoid your own body.\n\nCONTROLS\n\nArrow Keys\nWASD\nESC = Pause\n\nSPECIAL FOODS\n\nNormal - Regular food that grows the snake and gives points.\n\nGolden - Extra points when collected.\n\nBomb - Ends the game if collected.\n\nShrink - Reduces snake length.\n\nSpeed - Temporarily increases snake speed.\n\nSlow - Temporarily decreases snake speed.\n\nGhost - Temporarily allows passing through walls/obstacles.\n\nShield - Protects from one collision.\n";
         }
+        // Populate individual entries if present (prefer these when designer has separate fields)
+        if (normalFoodText != null) normalFoodText.text = "Normal - Regular food that grows the snake and gives points.";
+        if (goldenFoodText != null) goldenFoodText.text = "Golden - Extra points when collected.";
+        if (bombFoodText != null) bombFoodText.text = "Bomb - Ends the game if collected.";
+        if (shrinkFoodText != null) shrinkFoodText.text = "Shrink - Reduces snake length.";
+        if (speedFoodText != null) speedFoodText.text = "Speed - Temporarily increases snake speed.";
+        if (slowFoodText != null) slowFoodText.text = "Slow - Temporarily decreases snake speed.";
+        if (ghostFoodText != null) ghostFoodText.text = "Ghost - Temporarily allows passing through walls/obstacles.";
+        if (shieldFoodText != null) shieldFoodText.text = "Shield - Protects from one collision.";
 
         // Initialize icons
         RefreshMusicIcon();
