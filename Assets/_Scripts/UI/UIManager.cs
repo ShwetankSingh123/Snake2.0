@@ -2,11 +2,59 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
-using CustomUI;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
+
+    #region Main Menu
+
+    [Header("Main Menu")]
+    [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private Button continueButton;
+    [SerializeField] private Button newGameButton;
+    [SerializeField] private Button howToPlayButton;
+    [SerializeField] private Button exitButton;
+
+    // Bottom-right icons
+    [SerializeField] private Button musicToggleButton;
+    [SerializeField] private Button hapticsToggleButton;
+    [SerializeField] private Image musicToggleIcon;
+    [SerializeField] private Image hapticsToggleIcon;
+    [SerializeField] private Sprite musicOnSprite;
+    [SerializeField] private Sprite musicOffSprite;
+    [SerializeField] private Sprite hapticsOnSprite;
+    [SerializeField] private Sprite hapticsOffSprite;
+
+    #endregion
+
+    #region Difficulty
+
+    [Header("Difficulty Panel")]
+    [SerializeField] private GameObject difficultyPanel;
+    [SerializeField] private Button diffLeftButton;
+    [SerializeField] private TMP_Text difficultyNameText;
+    [SerializeField] private Button diffRightButton;
+    [SerializeField] private TMP_Text difficultyDescriptionText;
+    [SerializeField] private Button difficultyStartButton;
+    [SerializeField] private Button difficultyBackButton;
+
+    private enum UIDifficulty { Easy = 0, Normal = 1, Hard = 2, Extreme = 3 }
+    private UIDifficulty selectedDifficulty = UIDifficulty.Normal;
+
+    #endregion
+
+    #region How To Play
+
+    [Header("How To Play Panel")]
+    [SerializeField] private GameObject howToPlayPanel;
+    [SerializeField] private ScrollRect howToPlayScrollRect;
+    [SerializeField] private Button howToPlayBackButton;
+    [SerializeField] private TMP_Text howToPlayContentText;
+
+    #endregion
+
+    #region Gameplay
 
     [Header("Gameplay Panel")]
     [SerializeField] private GameObject gameplayPanel;
@@ -15,41 +63,18 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text comboText;
     [SerializeField] private GameObject comboPanel;
 
-    [Header("Status Effect Icons")]
-    [SerializeField] private GameObject shieldIcon;
-    [SerializeField] private GameObject ghostIcon;
+    #endregion
 
-    [Header("Special Food Timer")]
-    [SerializeField] private GameObject specialTimerPanel;
-    [SerializeField] private Image specialTimerFill;
-    [SerializeField] private TMP_Text specialTimerLabel;
-
-    [Header("Main Menu")]
-    [SerializeField] private GameObject mainMenuPanel;
-    [SerializeField] private CustomButton continueButton;
-    [SerializeField] private CustomButton newGameButton;
-    [SerializeField] private CustomButton exitButton;
-    [SerializeField] private CustomButton optionsButton;
-    [SerializeField] private CustomButton howToPlayButton;
-
-    [Header("Main Menu Panels")]
-    [SerializeField] private GameObject optionsPanel;
-    [SerializeField] private GameObject howToPlayPanel;
-    [SerializeField] private TMP_Text howToPlayText;
-
-    [Header("Difficulty Selection Panel")]
-    [SerializeField] private GameObject difficultySelectionPanel;
-    [SerializeField] private CustomButton easyButton;
-    [SerializeField] private CustomButton normalButton;
-    [SerializeField] private CustomButton hardButton;
-    [SerializeField] private CustomButton extremeButton;
-    [SerializeField] private CustomButton startGameButton;
-    [SerializeField] private CustomButton backFromDifficultyButton;
+    #region Pause
 
     [Header("Pause Panel")]
     [SerializeField] private GameObject pausePanel;
-    [SerializeField] private CustomButton resumeButton;
-    [SerializeField] private CustomButton mainMenuFromPauseButton;
+    [SerializeField] private Button resumeButton;
+    [SerializeField] private Button mainMenuFromPauseButton;
+
+    #endregion
+
+    #region Game Over
 
     [Header("Game Over Panel")]
     [SerializeField] private GameObject gameOverPanel;
@@ -57,76 +82,113 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text gameOverBestText;
     [SerializeField] private TMP_Text newBestLabel;
 
-    [Space(10)]
-    [SerializeField] private Sprite _selectedButtonSprite;
-    [SerializeField] private Sprite _normalButtonSprite;
+    #endregion
+
+    #region Status Effects
+
+    [Header("Status Effect Icons")]
+    [SerializeField] private GameObject shieldIcon;
+    [SerializeField] private GameObject ghostIcon;
+
+    #endregion
+
+    #region Timer
+
+    [Header("Special Food Timer")]
+    [SerializeField] private GameObject specialTimerPanel;
+    [SerializeField] private Image specialTimerFill;
+    [SerializeField] private TMP_Text specialTimerLabel;
 
     private float timerDuration;
     private float timerRemaining;
     private bool timerActive;
 
-    void Awake()
+    #endregion
+
+    #region Hover
+
+    [Space(10)]
+    [SerializeField] private Sprite _selectedButtonSprite;
+    [SerializeField] private Sprite _normalButtonSprite;
+
+    #endregion
+
+    private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
     }
 
-    void Start()
+    private void Start()
     {
-        // Hover visuals
-        AddHoverEvents(continueButton);
-        AddHoverEvents(newGameButton);
-        AddHoverEvents(exitButton);
-        AddHoverEvents(optionsButton);
-        AddHoverEvents(howToPlayButton);
-        AddHoverEvents(resumeButton);
-        AddHoverEvents(mainMenuFromPauseButton);
-        AddHoverEvents(easyButton);
-        AddHoverEvents(normalButton);
-        AddHoverEvents(hardButton);
-        AddHoverEvents(extremeButton);
-        AddHoverEvents(startGameButton);
-        AddHoverEvents(backFromDifficultyButton);
+        // Register hover visuals for buttons
+        RegisterHover(continueButton);
+        RegisterHover(newGameButton);
+        RegisterHover(howToPlayButton);
+        RegisterHover(exitButton);
+        RegisterHover(musicToggleButton);
+        RegisterHover(hapticsToggleButton);
+        RegisterHover(diffLeftButton);
+        RegisterHover(diffRightButton);
+        RegisterHover(difficultyStartButton);
+        RegisterHover(difficultyBackButton);
+        RegisterHover(howToPlayBackButton);
+        RegisterHover(resumeButton);
+        RegisterHover(mainMenuFromPauseButton);
 
-        // Panels initial state
+        // Initial panel states
         specialTimerPanel?.SetActive(false);
         gameOverPanel?.SetActive(false);
         pausePanel?.SetActive(false);
         comboPanel?.SetActive(false);
         shieldIcon?.SetActive(false);
         ghostIcon?.SetActive(false);
-        optionsPanel?.SetActive(false);
         howToPlayPanel?.SetActive(false);
-        difficultySelectionPanel?.SetActive(false);
+        difficultyPanel?.SetActive(false);
 
-        // Button listeners
-        if (continueButton)  continueButton.onClick.AddListener(()  => GameManager.Instance.ContinueGame());
-        if (newGameButton)   newGameButton.onClick.AddListener(()   => OpenDifficultySelection());
-        if (exitButton)      exitButton.onClick.AddListener(()      => GameManager.Instance.ExitGame());
-        if (optionsButton)   optionsButton.onClick.AddListener(()   => OpenOptionsPanel());
-        if (howToPlayButton) howToPlayButton.onClick.AddListener(() => OpenHowToPlay());
-        if (resumeButton)    resumeButton.onClick.AddListener(()    => GameManager.Instance.ResumeGame());
+        // Main menu bindings
+        if (continueButton) continueButton.onClick.AddListener(() => GameManager.Instance.ContinueGame());
+        if (newGameButton)  newGameButton.onClick.AddListener(ShowDifficultyPanel);
+        if (howToPlayButton) howToPlayButton.onClick.AddListener(ShowHowToPlayPanel);
+        if (exitButton)     exitButton.onClick.AddListener(() => GameManager.Instance.ExitGame());
+
+        // Difficulty panel bindings
+        if (diffLeftButton) diffLeftButton.onClick.AddListener(() => CycleDifficulty(-1));
+        if (diffRightButton) diffRightButton.onClick.AddListener(() => CycleDifficulty(1));
+        if (difficultyStartButton) difficultyStartButton.onClick.AddListener(() => { HideDifficultyPanel(); GameManager.Instance.StartNewGame(); });
+        if (difficultyBackButton) difficultyBackButton.onClick.AddListener(HideDifficultyPanel);
+
+        // HowToPlay
+        if (howToPlayBackButton) howToPlayBackButton.onClick.AddListener(HideHowToPlayPanel);
+
+        // Pause bindings
+        if (resumeButton) resumeButton.onClick.AddListener(() => GameManager.Instance.ResumeGame());
         if (mainMenuFromPauseButton) mainMenuFromPauseButton.onClick.AddListener(() => GameManager.Instance.GoToMainMenu());
 
-        // Difficulty selection listeners
-        if (easyButton)  easyButton.onClick.AddListener(() => SelectDifficulty(Difficulty.Easy));
-        if (normalButton) normalButton.onClick.AddListener(() => SelectDifficulty(Difficulty.Normal));
-        if (hardButton)  hardButton.onClick.AddListener(() => SelectDifficulty(Difficulty.Hard));
-        if (extremeButton) extremeButton.onClick.AddListener(() => SelectDifficulty(Difficulty.Extreme));
-        if (startGameButton) startGameButton.onClick.AddListener(() => StartGameFromDifficulty());
-        if (backFromDifficultyButton) backFromDifficultyButton.onClick.AddListener(() => CloseDifficultySelection());
+        // Music & Haptics toggles
+        if (musicToggleButton) musicToggleButton.onClick.AddListener(ToggleMusic);
+        if (hapticsToggleButton) hapticsToggleButton.onClick.AddListener(ToggleHaptics);
 
-        // HowToPlay content
-        if (howToPlayText)
+        // Initialize difficulty from GameManager
+        if (GameManager.Instance != null) selectedDifficulty = (UIDifficulty)GameManager.Instance.CurrentDifficulty;
+        UpdateDifficultyUI();
+
+        // Populate HowToPlay content
+        if (howToPlayContentText != null)
         {
-            howToPlayText.text = "Objective:\nEat food to grow and score points. Avoid hitting walls or yourself.\n\nControls:\nArrow Keys / WASD to move. Esc to pause.\n\nFood Types and Effects:\n- Normal: regular growth and points.\n- Golden: extra points.\n- Bomb: ends the game if collected.\n- Shrink: reduces snake length.\n- Speed: increases movement speed.\n- Slow: reduces movement speed.\n- Ghost: pass through walls/obstacles for a short time.\n- Shield: protects from one collision.\n";
+            howToPlayContentText.text =
+                "OBJECTIVE\n\nEat food.\nAvoid walls.\nAvoid your own body.\n\nCONTROLS\n\nArrow Keys\nWASD\nESC = Pause\n\nSPECIAL FOODS\n\nNormal - Regular food that grows the snake and gives points.\n\nGolden - Extra points when collected.\n\nBomb - Ends the game if collected.\n\nShrink - Reduces snake length.\n\nSpeed - Temporarily increases snake speed.\n\nSlow - Temporarily decreases snake speed.\n\nGhost - Temporarily allows passing through walls/obstacles.\n\nShield - Protects from one collision.\n";
         }
 
-        // Default difficulty visual
-        SelectDifficulty(Difficulty.Normal);
+        // Initialize icons
+        RefreshMusicIcon();
+        RefreshHapticsIcon();
+
+        // Show main menu
+        ShowMainMenuUI();
     }
 
-    void Update()
+    private void Update()
     {
         if (!timerActive) return;
         timerRemaining -= Time.deltaTime;
@@ -134,7 +196,100 @@ public class UIManager : MonoBehaviour
         if (timerRemaining <= 0f) StopSpecialTimer();
     }
 
-    // ─── Score ────────────────────────────────────
+    #region Main Menu
+
+    public void ShowMainMenuUI()
+    {
+        SetOnlyActive(mainMenuPanel);
+        RefreshContinueVisibility();
+        Time.timeScale = 1f;
+    }
+
+    public void HideMainMenuPanel()
+    {
+        mainMenuPanel?.SetActive(false);
+    }
+
+    private void RefreshContinueVisibility()
+    {
+        if (continueButton != null) continueButton.gameObject.SetActive(PlayerPrefs.GetInt("HasSave", 0) == 1);
+    }
+
+    #endregion
+
+    #region Difficulty
+
+    public void ShowDifficultyPanel()
+    {
+        SetOnlyActive(difficultyPanel);
+        UpdateDifficultyUI();
+    }
+
+    public void HideDifficultyPanel()
+    {
+        difficultyPanel?.SetActive(false);
+        ShowMainMenuUI();
+    }
+
+    private void CycleDifficulty(int delta)
+    {
+        int d = (int)selectedDifficulty;
+        d = (d + delta) % 4;
+        if (d < 0) d += 4;
+        selectedDifficulty = (UIDifficulty)d;
+        // Map UI enum to GameManager's global Difficulty enum
+        GameManager.Instance.SetDifficulty((Difficulty)selectedDifficulty);
+        UpdateDifficultyUI();
+    }
+
+    private void UpdateDifficultyUI()
+    {
+        if (difficultyNameText != null) difficultyNameText.text = selectedDifficulty.ToString();
+        if (difficultyDescriptionText != null)
+        {
+            string desc = "";
+            switch (selectedDifficulty)
+            {
+                case UIDifficulty.Easy:
+                    desc = "Perfect for beginners.\n• Slow snake\n• More Golden Foods";
+                    break;
+                case UIDifficulty.Normal:
+                    desc = "Balanced gameplay.\nRecommended for most players.";
+                    break;
+                case UIDifficulty.Hard:
+                    desc = "Faster snake.\nBombs appear earlier.";
+                    break;
+                case UIDifficulty.Extreme:
+                    desc = "Maximum speed.\nFor experienced players.";
+                    break;
+            }
+            difficultyDescriptionText.text = desc;
+        }
+    }
+
+    #endregion
+
+    #region How To Play
+
+    public void ShowHowToPlayPanel()
+    {
+        SetOnlyActive(howToPlayPanel);
+        if (howToPlayScrollRect != null) howToPlayScrollRect.verticalNormalizedPosition = 1f;
+    }
+
+    public void HideHowToPlayPanel()
+    {
+        howToPlayPanel?.SetActive(false);
+        ShowMainMenuUI();
+    }
+
+    #endregion
+
+    #region Gameplay
+
+    public void ShowGameplayUI()  => gameplayPanel?.SetActive(true);
+    public void HideGameplayUI()  => gameplayPanel?.SetActive(false);
+
     public void UpdateScoreUI(int score)
     {
         if (currentScoreText) currentScoreText.text = score.ToString();
@@ -153,33 +308,9 @@ public class UIManager : MonoBehaviour
         if (comboText) comboText.text = $"x{combo} COMBO!";
     }
 
-    // ─── Timer ───────────────────────────────────
-    public void StartSpecialTimer(float duration, Color color)
-    {
-        Debug.Log($"Starting special timer for {duration} seconds with color {color}");
-        timerDuration = timerRemaining = duration;
-        timerActive = true;
-        //specialTimerPanel?.SetActive(true);
-        specialTimerFill.transform.parent.gameObject.SetActive(true);
-        if (specialTimerFill) { specialTimerFill.fillAmount = 1f; specialTimerFill.color = color; }
-    }
+    #endregion
 
-    public void StopSpecialTimer()
-    {
-        timerActive = false;
-        //specialTimerPanel?.SetActive(false);
-        specialTimerFill.transform.parent.gameObject.SetActive(false);
-    }
-
-    // ─── Status Effects ──────────────────────────
-    public void ShowShieldIndicator(bool on) => shieldIcon?.SetActive(on);
-    public void ShowGhostIndicator(bool on)  => ghostIcon?.SetActive(on);
-
-    // ─── Panels ──────────────────────────────────
-    public void ShowGameplayUI()  => gameplayPanel?.SetActive(true);
-    public void HideMainMenuPanel() => mainMenuPanel?.SetActive(false);
-    public void HideGameOverUI()  => gameOverPanel?.SetActive(false);
-    public void HidePausePanel()  => pausePanel?.SetActive(false);
+    #region Pause
 
     public void ShowPausePanel()
     {
@@ -187,18 +318,14 @@ public class UIManager : MonoBehaviour
         pausePanel?.SetActive(true);
     }
 
-    public void ShowMainMenuUI()
+    public void HidePausePanel()
     {
-        bool hasSave = PlayerPrefs.GetInt("HasSave", 0) == 1;
-        if (continueButton) continueButton.gameObject.SetActive(hasSave);
-        mainMenuPanel?.SetActive(true);
-        gameplayPanel?.SetActive(false);
-        gameOverPanel?.SetActive(false);
         pausePanel?.SetActive(false);
-        optionsPanel?.SetActive(false);
-        howToPlayPanel?.SetActive(false);
-        difficultySelectionPanel?.SetActive(false);
     }
+
+    #endregion
+
+    #region Game Over
 
     public void ShowGameOverUI()
     {
@@ -211,77 +338,109 @@ public class UIManager : MonoBehaviour
         if (newBestLabel)      newBestLabel.gameObject.SetActive(isNew);
     }
 
-    // --- Main Menu / Difficulty / Options / HowToPlay ---
-    private Difficulty selectedDifficulty = Difficulty.Normal;
-
-    private void OpenDifficultySelection()
+    public void HideGameOverUI()
     {
-        mainMenuPanel?.SetActive(false);
-        difficultySelectionPanel?.SetActive(true);
-        // ensure visuals reflect current selection
-        SetDifficultyButtonSprites();
+        gameOverPanel?.SetActive(false);
     }
 
-    private void CloseDifficultySelection()
+    #endregion
+
+    #region Settings
+
+    private const string MusicMutedKey = "MusicMuted";
+    private const string MusicVolumeBackupKey = "MusicVolumeBackup";
+
+    private void ToggleMusic()
     {
-        difficultySelectionPanel?.SetActive(false);
-        mainMenuPanel?.SetActive(true);
+        if (AudioManager.Instance == null) return;
+        bool currentlyMuted = PlayerPrefs.GetInt(MusicMutedKey, 0) == 1;
+        if (currentlyMuted)
+        {
+            float backup = PlayerPrefs.GetFloat(MusicVolumeBackupKey, 0.5f);
+            AudioManager.Instance.SetMusicVolume(backup);
+            PlayerPrefs.SetInt(MusicMutedKey, 0);
+        }
+        else
+        {
+            float saved = PlayerPrefs.GetFloat("MusicVolume", 0.5f);
+            PlayerPrefs.SetFloat(MusicVolumeBackupKey, saved);
+            AudioManager.Instance.SetMusicVolume(0f);
+            PlayerPrefs.SetInt(MusicMutedKey, 1);
+        }
+        PlayerPrefs.Save();
+        RefreshMusicIcon();
     }
 
-    private void SelectDifficulty(Difficulty diff)
+    private void RefreshMusicIcon()
     {
-        selectedDifficulty = diff;
-        // apply immediately so other systems can read current difficulty if needed
-        GameManager.Instance.SetDifficulty(selectedDifficulty);
-        SetDifficultyButtonSprites();
+        bool muted = PlayerPrefs.GetInt(MusicMutedKey, 0) == 1;
+        if (musicToggleIcon != null)
+            musicToggleIcon.sprite = muted ? musicOffSprite : musicOnSprite;
     }
 
-    private void StartGameFromDifficulty()
+    private void ToggleHaptics()
     {
-        // GameManager already has difficulty set by SelectDifficulty
-        difficultySelectionPanel?.SetActive(false);
-        GameManager.Instance.StartNewGame();
+        if (HapticManager.Instance != null)
+        {
+            bool newState = !HapticManager.Instance.IsEnabled;
+            HapticManager.Instance.IsEnabled = newState;
+        }
+        else
+        {
+            int val = PlayerPrefs.GetInt("HapticsEnabled", 1);
+            PlayerPrefs.SetInt("HapticsEnabled", val == 1 ? 0 : 1);
+            PlayerPrefs.Save();
+        }
+        RefreshHapticsIcon();
     }
 
-    private void OpenOptionsPanel()
+    private void RefreshHapticsIcon()
     {
-        optionsPanel?.SetActive(true);
-        mainMenuPanel?.SetActive(false);
+        bool enabled = HapticManager.Instance != null ? HapticManager.Instance.IsEnabled : PlayerPrefs.GetInt("HapticsEnabled", 1) == 1;
+        if (hapticsToggleIcon != null)
+            hapticsToggleIcon.sprite = enabled ? hapticsOnSprite : hapticsOffSprite;
     }
 
-    public void CloseOptionsPanel()
+    #endregion
+
+    #region Timer
+
+    public void StartSpecialTimer(float duration, Color color)
     {
-        optionsPanel?.SetActive(false);
-        mainMenuPanel?.SetActive(true);
+        timerDuration = timerRemaining = duration;
+        timerActive = true;
+        specialTimerFill.transform.parent.gameObject.SetActive(true);
+        if (specialTimerFill) { specialTimerFill.fillAmount = 1f; specialTimerFill.color = color; }
     }
 
-    private void OpenHowToPlay()
+    public void StopSpecialTimer()
     {
-        howToPlayPanel?.SetActive(true);
-        mainMenuPanel?.SetActive(false);
+        timerActive = false;
+        specialTimerFill.transform.parent.gameObject.SetActive(false);
     }
 
-    public void CloseHowToPlay()
-    {
-        howToPlayPanel?.SetActive(false);
-        mainMenuPanel?.SetActive(true);
-    }
+    #endregion
 
-    private void SetDifficultyButtonSprites()
+    #region Status Indicators
+
+    public void ShowShieldIndicator(bool on) => shieldIcon?.SetActive(on);
+    public void ShowGhostIndicator(bool on)  => ghostIcon?.SetActive(on);
+
+    #endregion
+
+    #region Hover
+
+    private void RegisterHover(Button btn)
     {
-        if (easyButton) SetButtonSprite(easyButton, selectedDifficulty == Difficulty.Easy ? _selectedButtonSprite : _normalButtonSprite);
-        if (normalButton) SetButtonSprite(normalButton, selectedDifficulty == Difficulty.Normal ? _selectedButtonSprite : _normalButtonSprite);
-        if (hardButton) SetButtonSprite(hardButton, selectedDifficulty == Difficulty.Hard ? _selectedButtonSprite : _normalButtonSprite);
-        if (extremeButton) SetButtonSprite(extremeButton, selectedDifficulty == Difficulty.Extreme ? _selectedButtonSprite : _normalButtonSprite);
+        if (btn == null) return;
+        AddHoverEvents(btn);
     }
 
     private void SetButtonSprite(Button button, Sprite sprite)
     {
         if (button == null) return;
-
         Image image = button.GetComponent<Image>();
-        if (image != null)
-            image.sprite = sprite;
+        if (image != null) image.sprite = sprite;
     }
 
     private void AddHoverEvents(Button button)
@@ -289,10 +448,7 @@ public class UIManager : MonoBehaviour
         if (button == null) return;
 
         EventTrigger trigger = button.GetComponent<EventTrigger>();
-
-        if (trigger == null)
-            trigger = button.gameObject.AddComponent<EventTrigger>();
-
+        if (trigger == null) trigger = button.gameObject.AddComponent<EventTrigger>();
         trigger.triggers.Clear();
 
         EventTrigger.Entry enter = new EventTrigger.Entry();
@@ -305,4 +461,23 @@ public class UIManager : MonoBehaviour
         exit.callback.AddListener((_) => SetButtonSprite(button, _normalButtonSprite));
         trigger.triggers.Add(exit);
     }
+
+    #endregion
+
+    #region Utilities
+
+    private void SetOnlyActive(GameObject toShow)
+    {
+        mainMenuPanel?.SetActive(false);
+        difficultyPanel?.SetActive(false);
+        howToPlayPanel?.SetActive(false);
+        gameplayPanel?.SetActive(false);
+        pausePanel?.SetActive(false);
+        gameOverPanel?.SetActive(false);
+        specialTimerPanel?.SetActive(false);
+
+        toShow?.SetActive(true);
+    }
+
+    #endregion
 }
