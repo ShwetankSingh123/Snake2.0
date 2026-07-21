@@ -159,27 +159,27 @@ public class UIManager : MonoBehaviour
         difficultyPanel?.SetActive(false);
 
         // Main menu bindings
-        if (continueButton) continueButton.onClick.AddListener(() => GameManager.Instance.ContinueGame());
-        if (newGameButton)  newGameButton.onClick.AddListener(ShowDifficultyPanel);
-        if (howToPlayButton) howToPlayButton.onClick.AddListener(ShowHowToPlayPanel);
-        if (exitButton)     exitButton.onClick.AddListener(() => GameManager.Instance.ExitGame());
+        if (continueButton) continueButton.onButtonClick.AddListener(() => GameManager.Instance.ContinueGame());
+        if (newGameButton)  newGameButton.onButtonClick.AddListener(ShowDifficultyPanel);
+        if (howToPlayButton) howToPlayButton.onButtonClick.AddListener(ShowHowToPlayPanel);
+        if (exitButton)     exitButton.onButtonClick.AddListener(() => GameManager.Instance.ExitGame());
 
         // Difficulty panel bindings
-        if (diffLeftButton) diffLeftButton.onClick.AddListener(() => CycleDifficulty(-1));
-        if (diffRightButton) diffRightButton.onClick.AddListener(() => CycleDifficulty(1));
-        if (difficultyStartButton) difficultyStartButton.onClick.AddListener(() => { HideDifficultyPanel(); GameManager.Instance.StartNewGame(); });
-        if (difficultyBackButton) difficultyBackButton.onClick.AddListener(HideDifficultyPanel);
+        if (diffLeftButton) diffLeftButton.onButtonClick.AddListener(() => CycleDifficulty(-1));
+        if (diffRightButton) diffRightButton.onButtonClick.AddListener(() => CycleDifficulty(1));
+        if (difficultyStartButton) difficultyStartButton.onButtonClick.AddListener(() => { HideDifficultyPanel(); GameManager.Instance.StartNewGame(); });
+        if (difficultyBackButton) difficultyBackButton.onButtonClick.AddListener(HideDifficultyPanel);
 
         // HowToPlay
-        if (howToPlayBackButton) howToPlayBackButton.onClick.AddListener(HideHowToPlayPanel);
+        if (howToPlayBackButton) howToPlayBackButton.onButtonClick.AddListener(HideHowToPlayPanel);
 
         // Pause bindings
-        if (resumeButton) resumeButton.onClick.AddListener(() => GameManager.Instance.ResumeGame());
-        if (mainMenuFromPauseButton) mainMenuFromPauseButton.onClick.AddListener(() => GameManager.Instance.GoToMainMenu());
+        if (resumeButton) resumeButton.onButtonClick.AddListener(() => GameManager.Instance.ResumeGame());
+        if (mainMenuFromPauseButton) mainMenuFromPauseButton.onButtonClick.AddListener(() => GameManager.Instance.GoToMainMenu());
 
         // Music & Haptics toggles
-        if (musicToggleButton) musicToggleButton.onClick.AddListener(ToggleMusic);
-        if (hapticsToggleButton) hapticsToggleButton.onClick.AddListener(ToggleHaptics);
+        if (musicToggleButton) musicToggleButton.onButtonClick.AddListener(ToggleMusic);
+        if (hapticsToggleButton) hapticsToggleButton.onButtonClick.AddListener(ToggleHaptics);
 
         // Initialize difficulty from GameManager
         if (GameManager.Instance != null) selectedDifficulty = (UIDifficulty)GameManager.Instance.CurrentDifficulty;
