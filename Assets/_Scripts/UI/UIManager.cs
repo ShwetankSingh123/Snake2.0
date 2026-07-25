@@ -17,6 +17,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private CustomButton howToPlayButton;
     [SerializeField] private CustomButton exitButton;
 
+    [Header("Background")]
+    [SerializeField] private GameObject background;
+
     // Bottom-right icons
     [SerializeField] private CustomButton musicToggleButton;
     [SerializeField] private CustomButton hapticsToggleButton;
@@ -159,7 +162,7 @@ public class UIManager : MonoBehaviour
         difficultyPanel?.SetActive(false);
 
         // Main menu bindings
-        if (continueButton) continueButton.onButtonClick.AddListener(() => GameManager.Instance.ContinueGame());
+        if (continueButton) continueButton.onButtonClick.AddListener(() => { GameManager.Instance.ContinueGame(); RefreshContinueButton(); });
         if (newGameButton)  newGameButton.onButtonClick.AddListener(ShowDifficultyPanel);
         if (howToPlayButton) howToPlayButton.onButtonClick.AddListener(ShowHowToPlayPanel);
         if (exitButton)     exitButton.onButtonClick.AddListener(() => GameManager.Instance.ExitGame());
@@ -167,7 +170,7 @@ public class UIManager : MonoBehaviour
         // Difficulty panel bindings
         if (diffLeftButton) diffLeftButton.onButtonClick.AddListener(() => CycleDifficulty(-1));
         if (diffRightButton) diffRightButton.onButtonClick.AddListener(() => CycleDifficulty(1));
-        if (difficultyStartButton) difficultyStartButton.onButtonClick.AddListener(() => { HideDifficultyPanel(); GameManager.Instance.StartNewGame(); });
+        if (difficultyStartButton) difficultyStartButton.onButtonClick.AddListener(() => OnDifficultyStartPressed());
         if (difficultyBackButton) difficultyBackButton.onButtonClick.AddListener(HideDifficultyPanel);
 
         // HowToPlay
@@ -184,6 +187,35 @@ public class UIManager : MonoBehaviour
         // Initialize difficulty from GameManager
         if (GameManager.Instance != null) selectedDifficulty = (UIDifficulty)GameManager.Instance.CurrentDifficulty;
         UpdateDifficultyUI();
+
+        // Restore Music and Haptics settings
+        bool musicEnabled = PlayerPrefs.GetInt("MusicEnabled", 1) == 1;
+        if (AudioManager.Instance != null)
+        {
+            if (musicEnabled)
+            {
+                float vol = PlayerPrefs.GetFloat("MusicVolume", AudioManager.Instance.musicVolume);
+                AudioManager.Instance.SetMusicVolume(vol);
+            }
+            else
+            {
+                // save current as backup then mute
+                float cur = PlayerPrefs.GetFloat("MusicVolume", AudioManager.Instance.musicVolume);
+                PlayerPrefs.SetFloat("MusicVolumeBackup", cur);
+                AudioManager.Instance.SetMusicVolume(0f);
+            }
+        }
+        PlayerPrefs.SetInt("MusicEnabled", musicEnabled ? 1 : 0);
+
+        bool hapticsEnabled = PlayerPrefs.GetInt("HapticsEnabled", 1) == 1;
+        if (HapticManager.Instance != null)
+            HapticManager.Instance.IsEnabled = hapticsEnabled;
+        PlayerPrefs.SetInt("HapticsEnabled", hapticsEnabled ? 1 : 0);
+
+        // Initialize icons
+
+        // Ensure Continue button reflects saved state
+        RefreshContinueButton();
 
         // Populate HowToPlay content
         if (howToPlayContentText != null)
@@ -203,7 +235,7 @@ public class UIManager : MonoBehaviour
 
         // Initialize icons
         RefreshMusicIcon();
-        RefreshHapticsIcon();
+        RefreshHapticsIcon(); // Update haptics icon
 
         // Show main menu
         ShowMainMenuUI();
@@ -221,17 +253,20 @@ public class UIManager : MonoBehaviour
 
     public void ShowMainMenuUI()
     {
-        SetOnlyActive(mainMenuPanel);
-        RefreshContinueVisibility();
+        // Reset shared menu state then show main menu
+        ResetToMenu();
+        mainMenuPanel?.SetActive(true);
+        ShowBackground();
         Time.timeScale = 1f;
     }
 
     public void HideMainMenuPanel()
     {
         mainMenuPanel?.SetActive(false);
+        // background handled by other show methods
     }
 
-    private void RefreshContinueVisibility()
+    public void RefreshContinueButton()
     {
         if (continueButton != null) continueButton.gameObject.SetActive(PlayerPrefs.GetInt("HasSave", 0) == 1);
     }
@@ -242,7 +277,11 @@ public class UIManager : MonoBehaviour
 
     public void ShowDifficultyPanel()
     {
-        SetOnlyActive(difficultyPanel);
+        // Keep UI selection in sync with GameManager
+        if (GameManager.Instance != null) selectedDifficulty = (UIDifficulty)GameManager.Instance.CurrentDifficulty;
+        HideAllPanels();
+        difficultyPanel?.SetActive(true);
+        ShowBackground();
         UpdateDifficultyUI();
     }
 
@@ -259,8 +298,17 @@ public class UIManager : MonoBehaviour
         if (d < 0) d += 4;
         selectedDifficulty = (UIDifficulty)d;
         // Map UI enum to GameManager's global Difficulty enum
-        GameManager.Instance.SetDifficulty((Difficulty)selectedDifficulty);
+        if (GameManager.Instance != null) GameManager.Instance.SetDifficulty((Difficulty)selectedDifficulty);
         UpdateDifficultyUI();
+    }
+
+    private void OnDifficultyStartPressed()
+    {
+        // Apply selected difficulty to GameManager then start
+        if (GameManager.Instance != null) GameManager.Instance.SetDifficulty((Difficulty)selectedDifficulty);
+        HideDifficultyPanel();
+        if (GameManager.Instance != null) GameManager.Instance.StartNewGame();
+        RefreshContinueButton();
     }
 
     private void UpdateDifficultyUI()
@@ -294,7 +342,9 @@ public class UIManager : MonoBehaviour
 
     public void ShowHowToPlayPanel()
     {
-        SetOnlyActive(howToPlayPanel);
+        HideAllPanels();
+        howToPlayPanel?.SetActive(true);
+        ShowBackground();
         if (howToPlayScrollRect != null) howToPlayScrollRect.verticalNormalizedPosition = 1f;
     }
 
@@ -308,8 +358,17 @@ public class UIManager : MonoBehaviour
 
     #region Gameplay
 
-    public void ShowGameplayUI()  => gameplayPanel?.SetActive(true);
-    public void HideGameplayUI()  => gameplayPanel?.SetActive(false);
+    public void ShowGameplayUI()
+    {
+        // Hide menu background during gameplay
+        HideBackground();
+        gameplayPanel?.SetActive(true);
+    }
+
+    public void HideGameplayUI()
+    {
+        gameplayPanel?.SetActive(false);
+    }
 
     public void UpdateScoreUI(int score)
     {
@@ -335,7 +394,9 @@ public class UIManager : MonoBehaviour
 
     public void ShowPausePanel()
     {
+        // Pause should hide gameplay background but not show menu background
         gameplayPanel?.SetActive(false);
+        HideBackground();
         pausePanel?.SetActive(true);
     }
 
@@ -351,6 +412,7 @@ public class UIManager : MonoBehaviour
     public void ShowGameOverUI()
     {
         gameOverPanel?.SetActive(true);
+        ShowBackground();
         int cur  = ScoreManager.Instance.CurrentScore;
         int best = ScoreManager.Instance.bestScore;
         bool isNew = cur >= best && cur > 0;
@@ -368,25 +430,27 @@ public class UIManager : MonoBehaviour
 
     #region Settings
 
-    private const string MusicMutedKey = "MusicMuted";
+    private const string MusicEnabledKey = "MusicEnabled";
     private const string MusicVolumeBackupKey = "MusicVolumeBackup";
+    private const string HapticsEnabledKey = "HapticsEnabled";
 
     private void ToggleMusic()
     {
         if (AudioManager.Instance == null) return;
-        bool currentlyMuted = PlayerPrefs.GetInt(MusicMutedKey, 0) == 1;
-        if (currentlyMuted)
+        bool enabled = PlayerPrefs.GetInt(MusicEnabledKey, 1) == 1;
+        // toggle
+        if (enabled)
         {
-            float backup = PlayerPrefs.GetFloat(MusicVolumeBackupKey, 0.5f);
-            AudioManager.Instance.SetMusicVolume(backup);
-            PlayerPrefs.SetInt(MusicMutedKey, 0);
+            // turn off: backup current volume then mute
+            PlayerPrefs.SetFloat(MusicVolumeBackupKey, PlayerPrefs.GetFloat("MusicVolume", AudioManager.Instance.musicVolume));
+            AudioManager.Instance.SetMusicVolume(0f);
+            PlayerPrefs.SetInt(MusicEnabledKey, 0);
         }
         else
         {
-            float saved = PlayerPrefs.GetFloat("MusicVolume", 0.5f);
-            PlayerPrefs.SetFloat(MusicVolumeBackupKey, saved);
-            AudioManager.Instance.SetMusicVolume(0f);
-            PlayerPrefs.SetInt(MusicMutedKey, 1);
+            // turn on: restore default music volume
+            AudioManager.Instance.SetMusicVolume(AudioManager.Instance.musicVolume);
+            PlayerPrefs.SetInt(MusicEnabledKey, 1);
         }
         PlayerPrefs.Save();
         RefreshMusicIcon();
@@ -394,30 +458,24 @@ public class UIManager : MonoBehaviour
 
     private void RefreshMusicIcon()
     {
-        bool muted = PlayerPrefs.GetInt(MusicMutedKey, 0) == 1;
+        bool enabled = PlayerPrefs.GetInt(MusicEnabledKey, 1) == 1;
         if (musicToggleIcon != null)
-            musicToggleIcon.sprite = muted ? musicOffSprite : musicOnSprite;
+            musicToggleIcon.sprite = enabled ? musicOnSprite : musicOffSprite;
     }
 
     private void ToggleHaptics()
     {
-        if (HapticManager.Instance != null)
-        {
-            bool newState = !HapticManager.Instance.IsEnabled;
-            HapticManager.Instance.IsEnabled = newState;
-        }
-        else
-        {
-            int val = PlayerPrefs.GetInt("HapticsEnabled", 1);
-            PlayerPrefs.SetInt("HapticsEnabled", val == 1 ? 0 : 1);
-            PlayerPrefs.Save();
-        }
+        bool enabled = PlayerPrefs.GetInt(HapticsEnabledKey, 1) == 1;
+        bool newState = !enabled;
+        PlayerPrefs.SetInt(HapticsEnabledKey, newState ? 1 : 0);
+        if (HapticManager.Instance != null) HapticManager.Instance.IsEnabled = newState;
+        PlayerPrefs.Save();
         RefreshHapticsIcon();
     }
 
     private void RefreshHapticsIcon()
     {
-        bool enabled = HapticManager.Instance != null ? HapticManager.Instance.IsEnabled : PlayerPrefs.GetInt("HapticsEnabled", 1) == 1;
+        bool enabled = HapticManager.Instance != null ? HapticManager.Instance.IsEnabled : PlayerPrefs.GetInt(HapticsEnabledKey, 1) == 1;
         if (hapticsToggleIcon != null)
             hapticsToggleIcon.sprite = enabled ? hapticsOnSprite : hapticsOffSprite;
     }
@@ -489,15 +547,49 @@ public class UIManager : MonoBehaviour
 
     private void SetOnlyActive(GameObject toShow)
     {
+        HideAllPanels();
+        specialTimerPanel?.SetActive(false);
+        toShow?.SetActive(true);
+    }
+
+    private void ShowBackground()
+    {
+        if (background != null) background.SetActive(true);
+    }
+
+    private void HideBackground()
+    {
+        if (background != null) background.SetActive(false);
+    }
+
+    private void HideAllPanels()
+    {
         mainMenuPanel?.SetActive(false);
         difficultyPanel?.SetActive(false);
         howToPlayPanel?.SetActive(false);
         gameplayPanel?.SetActive(false);
         pausePanel?.SetActive(false);
         gameOverPanel?.SetActive(false);
-        specialTimerPanel?.SetActive(false);
+    }
 
-        toShow?.SetActive(true);
+    public void ResetToMenu()
+    {
+        // Hide panels
+        HideAllPanels();
+        // Stop any active timer
+        StopSpecialTimer();
+        // Disable timer UI
+        specialTimerPanel?.SetActive(false);
+        // Reset scroll
+        if (howToPlayScrollRect != null) howToPlayScrollRect.verticalNormalizedPosition = 1f;
+        // Refresh continue button
+        RefreshContinueButton();
+        // Ensure other panels are closed
+        pausePanel?.SetActive(false);
+        gameOverPanel?.SetActive(false);
+        gameplayPanel?.SetActive(false);
+        // Unpause game
+        Time.timeScale = 1f;
     }
 
     #endregion

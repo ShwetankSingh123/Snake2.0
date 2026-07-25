@@ -7319,6 +7319,7 @@ MonoBehaviour:
   newGameButton: {fileID: 1104461133}
   howToPlayButton: {fileID: 74867198}
   exitButton: {fileID: 223033760}
+  background: {fileID: 575467017}
   musicToggleButton: {fileID: 1273014226}
   hapticsToggleButton: {fileID: 2004792574}
   musicToggleIcon: {fileID: 1273014224}
