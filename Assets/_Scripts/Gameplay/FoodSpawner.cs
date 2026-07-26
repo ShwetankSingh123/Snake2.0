@@ -30,6 +30,9 @@ public class FoodSpawner : MonoBehaviour
     private FoodType[] specialPool = { FoodType.Golden, FoodType.Speed, FoodType.Ghost, FoodType.Shield, FoodType.Slow, FoodType.Shrink, FoodType.Bomb };
     private int poolIndex = 0;
 
+    // Current difficulty settings
+    private DifficultySettings difficultySettings;
+
     public Vector2Int CurrentFoodGridPosition { get; private set; }
 
     void Awake()
@@ -84,15 +87,8 @@ public class FoodSpawner : MonoBehaviour
     private void SpawnNextSpecial()
     {
         Debug.Log($"[FoodSpawner] SpawnNextSpecial called. poolIndex={poolIndex}, specialPool.Length={specialPool.Length}");
-        FoodType next = specialPool[poolIndex % specialPool.Length];
-        poolIndex++;
-
-        // Don't spawn Bomb until score > 15
-        if (next == FoodType.Bomb && ScoreManager.Instance.CurrentScore < 15)
-        {
-            next = FoodType.Golden;
-        }
-
+        // Use weighted random based on difficulty settings
+        FoodType next = WeightedPickSpecial();
         SpawnSpecial(next);
     }
 
@@ -124,10 +120,44 @@ public class FoodSpawner : MonoBehaviour
         special.tag = "Food";
 
         var food = special.GetComponent<Food>();
-        if (food) { food.type = type; food.lifeTime = 6f; }
+        if (food)
+        {
+            food.type = type;
+            // Apply lifetime from difficulty settings if available
+            food.lifeTime = difficultySettings != null ? difficultySettings.specialFoodLifetime : 6f;
+        }
 
         activeSpecials.Add(special);
         if (FoodVFX.Instance != null) FoodVFX.Instance.PlaySpawn(type, snake.GridToWorld(cell));
+    }
+
+    // Called by GameManager when difficulty changes or at start
+    public void ApplyDifficultySettings(DifficultySettings settings)
+    {
+        difficultySettings = settings;
+    }
+
+    private FoodType WeightedPickSpecial()
+    {
+        // Build list of candidate specials (respecting Bomb restriction)
+        List<FoodType> candidates = new List<FoodType>(specialPool);
+        // If score too low, remove Bomb to avoid early bombs
+        if (ScoreManager.Instance != null && ScoreManager.Instance.CurrentScore < 15)
+            candidates.Remove(FoodType.Bomb);
+
+        // Compute total weight
+        float total = 0f;
+        foreach (var t in candidates) total += difficultySettings != null ? difficultySettings.GetSpawnWeight((int)t) : 1f;
+        if (total <= 0f) return candidates[0];
+
+        float r = Random.Range(0f, total);
+        float acc = 0f;
+        foreach (var t in candidates)
+        {
+            acc += difficultySettings != null ? difficultySettings.GetSpawnWeight((int)t) : 1f;
+            if (r <= acc) return t;
+        }
+        return candidates[candidates.Count - 1];
     }
 
     public void NotifySpecialDestroyed(GameObject special) => activeSpecials.Remove(special);

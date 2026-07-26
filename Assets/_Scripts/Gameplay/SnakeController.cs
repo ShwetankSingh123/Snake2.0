@@ -42,9 +42,10 @@ public class SnakeController : MonoBehaviour
     [HideInInspector] public bool isGhost = false;
     // Shield (survive one wall/self hit)
     [HideInInspector] public bool hasShield = false;
+    private Coroutine shieldCoroutine = null;
 
     private float moveTimer;
-    private float baseMoveRate;
+    public float baseMoveRate;
     private List<Transform> snakeBody = new List<Transform>();
     private SnakeControls controls;
     private Vector3 lastTailPrevWorldPos;
@@ -141,6 +142,14 @@ public class SnakeController : MonoBehaviour
     {
         float newRate = baseMoveRate - (score / speedScoreStep) * speedDecrement;
         moveRate = Mathf.Max(newRate, minMoveRate);
+    }
+
+    // Called by GameManager to apply difficulty settings
+    public void ApplyDifficultySettings(DifficultySettings settings)
+    {
+        if (settings == null) return;
+        baseMoveRate = settings.snakeMoveRate;
+        moveRate = baseMoveRate;
     }
 
     private void DetectSwipe(Vector2 start, Vector2 end)
@@ -285,6 +294,7 @@ public class SnakeController : MonoBehaviour
     private void ApplyFoodEffect(Food food)
     {
         var spawner = GameManager.Instance?.spawner;
+        var settings = GameManager.Instance?.CurrentDifficultySettings;
 
         switch (food.type)
         {
@@ -303,20 +313,24 @@ public class SnakeController : MonoBehaviour
                 for (int i = 0; i < -food.GetGrowth(); i++) Shrink();
                 break;
             case FoodType.Speed:
-                StartCoroutine(SpeedBoost(5f));
+                StartCoroutine(SpeedBoost(settings != null ? Mathf.Max(1f, settings.specialFoodLifetime * 0.8f) : 5f));
                 Grow();
                 break;
             case FoodType.Slow:
-                StartCoroutine(SlowEffect(5f));
+                StartCoroutine(SlowEffect(settings != null ? Mathf.Max(1f, settings.specialFoodLifetime * 0.8f) : 5f));
                 Grow();
                 break;
             case FoodType.Ghost:
-                StartCoroutine(GhostMode(7f));
+                StartCoroutine(GhostMode(settings != null ? settings.ghostDuration : 7f));
                 Grow();
                 break;
             case FoodType.Shield:
                 hasShield = true;
                 UIManager.Instance?.ShowShieldIndicator(true);
+                // apply shield duration from difficulty settings if available
+                if (shieldCoroutine != null) StopCoroutine(shieldCoroutine);
+                float shieldDuration = GameManager.Instance?.CurrentDifficultySettings != null ? GameManager.Instance.CurrentDifficultySettings.shieldDuration : 7f;
+                shieldCoroutine = StartCoroutine(ShieldTimeout(shieldDuration));
                 Grow();
                 break;
         }
@@ -367,6 +381,14 @@ public class SnakeController : MonoBehaviour
         yield return new WaitForSeconds(duration);
         isGhost = false;
         UIManager.Instance?.ShowGhostIndicator(false);
+    }
+
+    private IEnumerator ShieldTimeout(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        hasShield = false;
+        shieldCoroutine = null;
+        UIManager.Instance?.ShowShieldIndicator(false);
     }
 
     private IEnumerator PopEffect(Transform target)

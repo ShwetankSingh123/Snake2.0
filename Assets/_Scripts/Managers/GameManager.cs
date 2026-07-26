@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
 
     public GameState CurrentState { get; private set; }
     public Difficulty CurrentDifficulty { get; private set; } = Difficulty.Normal;
+    public DifficultySettings CurrentDifficultySettings { get; private set; }
 
     void Awake()
     {
@@ -39,15 +40,19 @@ public class GameManager : MonoBehaviour
     public void SetDifficulty(Difficulty d)
     {
         CurrentDifficulty = d;
+        // Load central settings for this difficulty
+        CurrentDifficultySettings = DifficultyPresets.Get((int)d);
+
+        // Apply to snake
         if (snake != null)
         {
-            snake.moveRate = d switch
-            {
-                Difficulty.Easy    => easySpeed,
-                Difficulty.Hard    => hardSpeed,
-                Difficulty.Extreme => extremeSpeed,
-                _                  => normalSpeed,
-            };
+            snake.ApplyDifficultySettings(CurrentDifficultySettings);
+        }
+
+        // Apply to spawner if present
+        if (spawner != null)
+        {
+            spawner.ApplyDifficultySettings(CurrentDifficultySettings);
         }
     }
 
@@ -58,6 +63,7 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
 
         if (snake != null) snake.gameObject.SetActive(true);
+        // Ensure difficulty settings are applied before starting
         SetDifficulty(CurrentDifficulty);
         scoreManager?.SetScore(0);
         spawner?.ClearAllFood();

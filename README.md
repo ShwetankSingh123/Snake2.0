@@ -10,6 +10,7 @@ This README summarizes the project's features, gameplay mechanics, how to run an
 
 - Classic grid-based Snake gameplay with smooth, configurable movement rate scaling by difficulty.
 - Four difficulty levels: Easy, Normal, Hard, Extreme (affects snake moveRate via GameManager).
+  - Centralized Difficulty system: DifficultySettings (code presets) drive snake speed, per-food spawn weights, special food lifetimes, and power-up durations so all difficulty tuning is stored in one place.
 - Save / Continue: progress is saved to persistent storage and a Continue button appears when a save exists.
 - Pause, Resume, and Game Over flows with UI transitions and save handling.
 - Special foods (spawned by FoodSpawner) with timers and visual indicators:
@@ -66,6 +67,7 @@ This README summarizes the project's features, gameplay mechanics, how to run an
   - Managers/
 	- GameManager.cs — central game flow and difficulty handling
 	- ScoreManager.cs — score and combo logic
+		- DifficultySettings.cs — central difficulty presets and tuning (snake speed, spawn weights, lifetimes)
   - Gameplay/
 	- SnakeController.cs — movement, growth, input, save/restore
 	- FoodSpawner.cs — spawning logic for normal and special foods
