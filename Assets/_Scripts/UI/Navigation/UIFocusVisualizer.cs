@@ -581,16 +581,28 @@ namespace CustomUI.Navigation
         {
             // Use AudioManager if available (integrates with existing audio system)
             // Uses the existing PlayUINavigationSound() method for consistent audio
-            if (AudioManager.Instance == null) return;
+        // If the navigation manager flagged suppression for the next programmatic
+        // selection, consume the flag and do not play focus sound.
+        if (UINavigationManager.Instance != null && UINavigationManager.Instance.SuppressNextFocusSound)
+        {
+            return;
+        }
 
-            // If the navigation manager flagged suppression for the next programmatic
-            // selection, consume the flag and do not play focus sound.
-            if (UINavigationManager.Instance != null && UINavigationManager.Instance.SuppressNextFocusSound)
+        // First try the modular provider (preferred).
+        try
+        {
+            var provider = CustomUI.Navigation.Providers.UIProviderLocator.Audio;
+            if (provider != null)
             {
+                provider.PlayNavigationFocus();
                 return;
             }
+        }
+        catch { }
 
-            //AudioManager.Instance.PlayUINavigationSound();
+        // Fallback to original direct call if AudioManager exists (comment kept for reference)
+        if (AudioManager.Instance == null) return;
+        //AudioManager.Instance.PlayUINavigationSound();
         }
 
         /// <summary>

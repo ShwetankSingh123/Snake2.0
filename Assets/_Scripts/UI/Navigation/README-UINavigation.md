@@ -55,6 +55,43 @@ How to integrate these optional features
 - Audio: implement a small IAudioProvider or simply replace commented AudioManager calls with your project's audio singleton.
 - UIEffect / third-party visual libs: re-enable references after adding the package or replace with your own Tween/Effect calls.
 
+Provider override example
+-------------------------
+You can replace the default providers at runtime (for example from a bootstrap MonoBehaviour). Below is a minimal example:
+
+```csharp
+using UnityEngine;
+using CustomUI.Navigation.Providers;
+
+public class UIBootstrap : MonoBehaviour
+{
+	void Awake()
+	{
+		// Replace audio provider with your game's adapter
+		UIProviderLocator.Audio = new MyGameAudioAdapter();
+
+		// Replace effect provider if you have a visual effects package
+		UIProviderLocator.Effect = new MyGameEffectAdapter();
+	}
+}
+
+// Example adapter skeletons
+public class MyGameAudioAdapter : IUIAudioProvider
+{
+	public void PlayUIButtonClick() { /* call your AudioManager.Play("ui_click"); */ }
+	public void PlayNavigationFocus() { /* call your AudioManager.Play("ui_focus"); */ }
+	public void PlaySubmit() { PlayUIButtonClick(); }
+}
+
+public class MyGameEffectAdapter : IUIEffectProvider
+{
+	public void EnableEffect(UnityEngine.UI.Graphic target) { /* enable outline/glow on target */ }
+	public void DisableEffect(UnityEngine.UI.Graphic target) { /* disable it */ }
+}
+```
+
+Place the bootstrap MonoBehaviour on a persistent GameObject (e.g., the same object that initializes other managers) so providers are available before UI interactions occur.
+
 Quick setup (recommended)
 -------------------------
 1. Add EventSystem to your scene (or let UIInputModuleSetup create it).

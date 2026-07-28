@@ -104,9 +104,13 @@ namespace CustomUI.Navigation
                 // CustomButton uses onButtonClick, invoke it directly
                 _customButton.onButtonClick?.Invoke();
                 _customButton.onRelease?.Invoke();
-                
-                if (_playSubmitSound && AudioManager.Instance != null)
+
+                if (_playSubmitSound)
                 {
+                    // Preferred: use modular provider
+                    try { CustomUI.Navigation.Providers.UIProviderLocator.Audio.PlayUIButtonClick(); }
+                    catch { /* swallow provider errors */ }
+
                     //AudioManager.Instance.PlayUIButtonSound();
                 }
                 return;
@@ -116,9 +120,11 @@ namespace CustomUI.Navigation
             if (_button != null)
             {
                 _button.onClick?.Invoke();
-                
-                if (_playSubmitSound && AudioManager.Instance != null)
+
+                if (_playSubmitSound)
                 {
+                    try { CustomUI.Navigation.Providers.UIProviderLocator.Audio.PlayUIButtonClick(); }
+                    catch { }
                     //AudioManager.Instance.PlayUIButtonSound();
                 }
                 return;
@@ -128,9 +134,11 @@ namespace CustomUI.Navigation
             if (_toggle != null)
             {
                 _toggle.isOn = !_toggle.isOn;
-                
-                if (_playSubmitSound && AudioManager.Instance != null)
+
+                if (_playSubmitSound)
                 {
+                    try { CustomUI.Navigation.Providers.UIProviderLocator.Audio.PlayUIButtonClick(); }
+                    catch { }
                     //AudioManager.Instance.PlayUIButtonSound();
                 }
                 return;
