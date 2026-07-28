@@ -120,13 +120,7 @@ public class UIManager : MonoBehaviour
 
     #endregion
 
-    #region Hover
-
-    [Space(10)]
-    [SerializeField] private Sprite _selectedButtonSprite;
-    [SerializeField] private Sprite _normalButtonSprite;
-
-    #endregion
+    // Hover logic removed: buttons keep their normal sprite
 
     private void Awake()
     {
@@ -136,21 +130,7 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        // Register hover visuals for buttons
-        RegisterHover(continueButton);
-        RegisterHover(newGameButton);
-        RegisterHover(howToPlayButton);
-        RegisterHover(exitButton);
-        RegisterHover(musicToggleButton);
-        RegisterHover(hapticsToggleButton);
-        RegisterHover(diffLeftButton);
-        RegisterHover(diffRightButton);
-        RegisterHover(difficultyStartButton);
-        RegisterHover(difficultyBackButton);
-        RegisterHover(howToPlayBackButton);
-        RegisterHover(resumeButton);
-        RegisterHover(mainMenuFromPauseButton);
-
+        // Hover handling removed - buttons keep their normal sprite
         // Initial panel states
         specialTimerPanel?.SetActive(false);
         gameOverPanel?.SetActive(false);
@@ -507,41 +487,7 @@ public class UIManager : MonoBehaviour
 
     #endregion
 
-    #region Hover
-
-    private void RegisterHover(Button btn)
-    {
-        if (btn == null) return;
-        AddHoverEvents(btn);
-    }
-
-    private void SetButtonSprite(Button button, Sprite sprite)
-    {
-        if (button == null) return;
-        Image image = button.GetComponent<Image>();
-        if (image != null) image.sprite = sprite;
-    }
-
-    private void AddHoverEvents(Button button)
-    {
-        if (button == null) return;
-
-        EventTrigger trigger = button.GetComponent<EventTrigger>();
-        if (trigger == null) trigger = button.gameObject.AddComponent<EventTrigger>();
-        trigger.triggers.Clear();
-
-        EventTrigger.Entry enter = new EventTrigger.Entry();
-        enter.eventID = EventTriggerType.PointerEnter;
-        enter.callback.AddListener((_) => SetButtonSprite(button, _selectedButtonSprite));
-        trigger.triggers.Add(enter);
-
-        EventTrigger.Entry exit = new EventTrigger.Entry();
-        exit.eventID = EventTriggerType.PointerExit;
-        exit.callback.AddListener((_) => SetButtonSprite(button, _normalButtonSprite));
-        trigger.triggers.Add(exit);
-    }
-
-    #endregion
+    // Hover handling removed; buttons keep their normal sprite
 
     #region Utilities
 
