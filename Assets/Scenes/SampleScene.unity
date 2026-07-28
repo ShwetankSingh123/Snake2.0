@@ -3468,6 +3468,63 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 60}
   m_SizeDelta: {x: 150, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &820801502
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 820801503}
+  - component: {fileID: 820801504}
+  m_Layer: 0
+  m_Name: UINavigationManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &820801503
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 820801502}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &820801504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 820801502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7aa867cef146e4c9510a4bd54f696e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CustomUI.Navigation.UINavigationManager
+  _horizontalAxis: Horizontal
+  _verticalAxis: Vertical
+  _submitButtons:
+  - Submit
+  - Jump
+  _cancelButtons:
+  - Cancel
+  _repeatDelay: 0.5
+  _repeatRate: 0.1
+  _inputThreshold: 0.5
+  _autoSelectOnInput: 1
+  _mouseIdleTime: 0.1
+  _debugMode: 0
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -7089,8 +7146,6 @@ MonoBehaviour:
   specialTimerPanel: {fileID: 788653593}
   specialTimerFill: {fileID: 1192936644}
   specialTimerLabel: {fileID: 28957150}
-  _selectedButtonSprite: {fileID: 919317374, guid: 6c6898e287be55c4d93adbc60f944199, type: 3}
-  _normalButtonSprite: {fileID: -1014280649, guid: 6c6898e287be55c4d93adbc60f944199, type: 3}
 --- !u!1 &1515788899
 GameObject:
   m_ObjectHideFlags: 0
@@ -9725,3 +9780,4 @@ SceneRoots:
   - {fileID: 189779875}
   - {fileID: 643696050}
   - {fileID: 443212547}
+  - {fileID: 820801503}
