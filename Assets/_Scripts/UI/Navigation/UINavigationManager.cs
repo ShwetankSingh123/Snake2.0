@@ -4,6 +4,9 @@ using System.Collections.Generic;
 //using Constant;
 using UnityEngine;
 using UnityEngine.EventSystems;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -34,6 +37,138 @@ namespace CustomUI.Navigation
         /// or when no groups are active).
         /// </summary>
         public static event Action OnRequestExitConfirmation;
+
+        #endregion
+
+        #region Input System Compatibility Helpers
+
+        private Vector2 GetSafeMousePosition()
+        {
+            try
+            {
+                return Input.mousePosition;
+            }
+            catch
+            {
+#if ENABLE_INPUT_SYSTEM
+                if (UnityEngine.InputSystem.Mouse.current != null)
+                {
+                    return UnityEngine.InputSystem.Mouse.current.position.ReadValue();
+                }
+#endif
+                return _lastMousePosition;
+            }
+        }
+
+        private bool SafeGetKeyDown(KeyCode kc)
+        {
+            try { return Input.GetKeyDown(kc); }
+            catch
+            {
+#if ENABLE_INPUT_SYSTEM
+                var kb = UnityEngine.InputSystem.Keyboard.current;
+                if (kb == null) return false;
+                switch (kc)
+                {
+                    case KeyCode.Return:
+                    case KeyCode.KeypadEnter:
+                        return kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey?.wasPressedThisFrame == true;
+                    case KeyCode.Space:
+                        return kb.spaceKey.wasPressedThisFrame;
+                    case KeyCode.Escape:
+                        return kb.escapeKey.wasPressedThisFrame;
+                    case KeyCode.Tab:
+                        return kb.tabKey.wasPressedThisFrame;
+                    case KeyCode.LeftArrow:
+                        return kb.leftArrowKey.wasPressedThisFrame;
+                    case KeyCode.RightArrow:
+                        return kb.rightArrowKey.wasPressedThisFrame;
+                    case KeyCode.UpArrow:
+                        return kb.upArrowKey.wasPressedThisFrame;
+                    case KeyCode.DownArrow:
+                        return kb.downArrowKey.wasPressedThisFrame;
+                    case KeyCode.A:
+                        return kb.aKey.wasPressedThisFrame;
+                    case KeyCode.D:
+                        return kb.dKey.wasPressedThisFrame;
+                    case KeyCode.W:
+                        return kb.wKey.wasPressedThisFrame;
+                    case KeyCode.S:
+                        return kb.sKey.wasPressedThisFrame;
+                    default:
+                        break;
+                }
+#endif
+                return false;
+            }
+        }
+
+        private bool SafeGetKey(KeyCode kc)
+        {
+            try { return Input.GetKey(kc); }
+            catch
+            {
+#if ENABLE_INPUT_SYSTEM
+                var kb = UnityEngine.InputSystem.Keyboard.current;
+                if (kb == null) return false;
+                switch (kc)
+                {
+                    case KeyCode.LeftArrow:
+                        return kb.leftArrowKey.isPressed;
+                    case KeyCode.RightArrow:
+                        return kb.rightArrowKey.isPressed;
+                    case KeyCode.UpArrow:
+                        return kb.upArrowKey.isPressed;
+                    case KeyCode.DownArrow:
+                        return kb.downArrowKey.isPressed;
+                    case KeyCode.A:
+                        return kb.aKey.isPressed;
+                    case KeyCode.D:
+                        return kb.dKey.isPressed;
+                    case KeyCode.W:
+                        return kb.wKey.isPressed;
+                    case KeyCode.S:
+                        return kb.sKey.isPressed;
+                    default:
+                        break;
+                }
+#endif
+                return false;
+            }
+        }
+
+        private float SafeGetAxis(string axisName)
+        {
+            try { return Input.GetAxis(axisName); }
+            catch
+            {
+#if ENABLE_INPUT_SYSTEM
+                // Attempt to approximate using gamepad left stick if available
+                var gp = UnityEngine.InputSystem.Gamepad.current;
+                if (gp != null)
+                {
+                    var v = gp.leftStick.ReadValue();
+                    if (axisName == _horizontalAxis) return v.x;
+                    if (axisName == _verticalAxis) return v.y;
+                }
+#endif
+                return 0f;
+            }
+        }
+
+        private bool SafeGetButtonDown(string buttonName)
+        {
+            try { return Input.GetButtonDown(buttonName); }
+            catch
+            {
+#if ENABLE_INPUT_SYSTEM
+                // No generic mapping for named buttons in new Input System here - return false
+                return false;
+#else
+                return false;
+#endif
+            }
+        }
 
         #endregion
 
@@ -189,7 +324,7 @@ namespace CustomUI.Navigation
             DontDestroyOnLoad(gameObject);
 
             _eventSystem = EventSystem.current;
-            _lastMousePosition = Input.mousePosition;
+            _lastMousePosition = GetSafeMousePosition();
         }
 
         private void OnEnable()
@@ -285,7 +420,7 @@ namespace CustomUI.Navigation
         private void DetectInputModeSwitch()
         {
             // Check for mouse movement
-            Vector2 currentMousePos = Input.mousePosition;
+            Vector2 currentMousePos = GetSafeMousePosition();
             if (Vector2.Distance(currentMousePos, _lastMousePosition) > 1f)
             {
                 _lastMousePosition = currentMousePos;
@@ -345,17 +480,17 @@ namespace CustomUI.Navigation
             // Direct key checks for WASD/Arrows (works regardless of axis setup)
             if (Mathf.Approximately(horizontal, 0f))
             {
-                if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
+                if (SafeGetKey(KeyCode.LeftArrow) || SafeGetKey(KeyCode.A))
                     horizontal = -1f;
-                else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
+                else if (SafeGetKey(KeyCode.RightArrow) || SafeGetKey(KeyCode.D))
                     horizontal = 1f;
             }
 
             if (Mathf.Approximately(vertical, 0f))
             {
-                if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
+                if (SafeGetKey(KeyCode.DownArrow) || SafeGetKey(KeyCode.S))
                     vertical = -1f;
-                else if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
+                else if (SafeGetKey(KeyCode.UpArrow) || SafeGetKey(KeyCode.W))
                     vertical = 1f;
             }
 
@@ -368,19 +503,22 @@ namespace CustomUI.Navigation
         private bool GetSubmitInput()
         {
             // Direct key checks
-            if (Input.GetKeyDown(KeyCode.Return) || 
-                Input.GetKeyDown(KeyCode.KeypadEnter) || 
-                Input.GetKeyDown(KeyCode.Space))
-            {
+            // Direct key checks (safe across input systems)
+            if (SafeGetKeyDown(KeyCode.Return) || SafeGetKeyDown(KeyCode.KeypadEnter) || SafeGetKeyDown(KeyCode.Space))
                 return true;
-            }
+
+            // Gamepad submit (A / South)
+#if ENABLE_INPUT_SYSTEM
+            var gp = UnityEngine.InputSystem.Gamepad.current;
+            if (gp != null && gp.buttonSouth.wasPressedThisFrame) return true;
+#endif
 
             // Legacy input buttons
             foreach (var button in _submitButtons)
             {
                 try
                 {
-                    if (Input.GetButtonDown(button))
+                    if (SafeGetButtonDown(button))
                         return true;
                 }
                 catch
@@ -397,14 +535,19 @@ namespace CustomUI.Navigation
         /// </summary>
         private bool GetCancelInput()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (SafeGetKeyDown(KeyCode.Escape))
                 return true;
+
+#if ENABLE_INPUT_SYSTEM
+            var gp = UnityEngine.InputSystem.Gamepad.current;
+            if (gp != null && gp.buttonEast.wasPressedThisFrame) return true; // B on gamepad
+#endif
 
             foreach (var button in _cancelButtons)
             {
                 try
                 {
-                    if (Input.GetButtonDown(button))
+                    if (SafeGetButtonDown(button))
                         return true;
                 }
                 catch
@@ -691,18 +834,12 @@ namespace CustomUI.Navigation
         private void HandleTabCycling()
         {
             // Check for Tab key press
-            bool tabPressed = Input.GetKeyDown(KeyCode.Tab);
-            bool shiftHeld = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            bool tabPressed = CustomUI.Navigation.InputUtils.SafeGetKeyDown(KeyCode.Tab);
+            bool shiftHeld = CustomUI.Navigation.InputUtils.SafeGetKey(KeyCode.LeftShift) || CustomUI.Navigation.InputUtils.SafeGetKey(KeyCode.RightShift);
 
             // Also check for gamepad shoulder buttons (LB/RB) for sub-group cycling
-            bool lbPressed = false;
-            bool rbPressed = false;
-            try
-            {
-                lbPressed = Input.GetKeyDown(KeyCode.JoystickButton4); // LB
-                rbPressed = Input.GetKeyDown(KeyCode.JoystickButton5); // RB
-            }
-            catch { }
+            bool lbPressed = CustomUI.Navigation.InputUtils.SafeGetKeyDown(KeyCode.JoystickButton4);
+            bool rbPressed = CustomUI.Navigation.InputUtils.SafeGetKeyDown(KeyCode.JoystickButton5);
 
             if (!tabPressed && !lbPressed && !rbPressed) return;
 

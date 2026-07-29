@@ -34,6 +34,18 @@ This README summarizes the project's features, gameplay mechanics, how to run an
 
 ---
 
+# Phase 2 — Recent Navigation & Modularity Improvements
+
+The project was updated to improve UI navigation and make integrations modular. Highlights:
+
+- Input System compatibility: the custom UINavigation stack now supports both the legacy Input Manager and the Unity Input System package. A new InputUtils helper safely polls mouse, keyboard, and gamepad input without throwing when the active input handling is switched in Player Settings.
+- UI input module detection: UIInputModuleSetup now detects the presence of the Input System UI module reliably and only configures the legacy StandaloneInputModule when appropriate (avoids false positives).
+- Modular UI providers: audio and UI-effect integration points were converted to adapter interfaces (IUIAudioProvider, IUIEffectProvider) and a UIProviderLocator so projects can plug in their own audio/effect adapters without editing the navigation code.
+
+See Assets/_Scripts/UI/Navigation/README-UINavigation.md for details and usage examples.
+
+---
+
 ## Gameplay Overview
 
 - The snake moves on a grid; the grid bounds are computed dynamically by the `Board` class based on the camera view.

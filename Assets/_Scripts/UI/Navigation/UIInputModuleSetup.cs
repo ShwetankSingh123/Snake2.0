@@ -79,7 +79,7 @@ namespace CustomUI.Navigation
             if (_eventSystem == null)
             {
 #if UNITY_2023_1_OR_NEWER
-                _eventSystem = FindFirstObjectByType<EventSystem>();
+                _eventSystem = FindAnyObjectByType<EventSystem>();
 #else
                 _eventSystem = FindObjectOfType<EventSystem>();
 #endif
@@ -104,19 +104,32 @@ namespace CustomUI.Navigation
                 return;
             }
 
-            // Configure the StandaloneInputModule
-            _standaloneModule = _eventSystem.GetComponent<StandaloneInputModule>();
+            // First, check specifically for the new Input System UI module by name to avoid
+            // incorrectly treating any BaseInputModule as the new module. This prevents a
+            // false-positive where GetComponent<BaseInputModule>() returns a StandaloneInputModule
+            // and the setup exits early.
+            bool foundNewInputSystemModule = false;
+            // Try a safe string-based check to avoid compile-time dependency on the package type
+            foreach (var comp in _eventSystem.GetComponents<Component>())
+            {
+                var t = comp.GetType();
+                if (t.FullName != null && t.FullName.IndexOf("InputSystemUIInputModule", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    foundNewInputSystemModule = true;
+                    break;
+                }
+            }
 
+            if (foundNewInputSystemModule)
+            {
+                Debug.Log("[UIInputModuleSetup] Found InputSystem UI module. Configuration handled by Input System.");
+                return;
+            }
+
+            // Configure the StandaloneInputModule (legacy Input Manager)
+            _standaloneModule = _eventSystem.GetComponent<StandaloneInputModule>();
             if (_standaloneModule == null)
             {
-                // Check for new Input System module
-                var inputSystemModule = _eventSystem.GetComponent<BaseInputModule>();
-                if (inputSystemModule != null)
-                {
-                    Debug.Log("[UIInputModuleSetup] Found InputSystem UI module. Configuration handled by Input System.");
-                    return;
-                }
-
                 // Add StandaloneInputModule if missing
                 _standaloneModule = _eventSystem.gameObject.AddComponent<StandaloneInputModule>();
             }

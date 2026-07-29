@@ -132,3 +132,25 @@ This navigation package is part of the Snake2.0 project and intended to be modul
 Contact
 -------
 For questions about wiring this into your UI or converting commented hooks into adapters, tell me which audio/effect system you use and I can provide concrete adapter code.
+
+Recent fixes (Phase 2)
+----------------------
+Issue found: when the Unity Player Settings switched the active input handling to the new Input System package, the navigation code attempted to read Input.mousePosition and Input.GetKeyDown which throws InvalidOperationException under the new Input System. Additionally, UIInputModuleSetup could incorrectly detect an input module and skip proper configuration.
+
+What was done:
+- Added InputUtils helpers (GetSafeMousePosition, SafeGetKeyDown, SafeGetKey, SafeGetAxis, SafeGetButtonDown) that attempt to use the legacy Input API and fall back to the new Input System API when available. This prevents exceptions and supports both input systems.
+- Improved UIInputModuleSetup detection logic to look for the InputSystemUIInputModule type name and only configure the StandaloneInputModule when the Input System UI module is not present.
+- Converted audio/effect integration points into modular adapters (IUIAudioProvider, IUIEffectProvider) and a UIProviderLocator. Default providers are no-ops or use reflection to call a project's AudioManager if present. Existing commented direct AudioManager calls remain in the source as references.
+
+How to apply the fixes in your project:
+1. Ensure you have the updated navigation scripts under Assets/_Scripts/UI/Navigation.
+2. If you use the new Input System and have an InputSystemUIInputModule in your EventSystem, UIInputModuleSetup will detect it and will not attempt to add a StandaloneInputModule.
+3. If you want to hook into your game's audio system, provide an adapter and assign it in a bootstrap MonoBehaviour:
+
+```csharp
+void Awake() {
+	CustomUI.Navigation.Providers.UIProviderLocator.Audio = new MyGameAudioAdapter();
+}
+```
+
+If you'd like, I can add a small bootstrap script that wires provider adapters at startup for you.

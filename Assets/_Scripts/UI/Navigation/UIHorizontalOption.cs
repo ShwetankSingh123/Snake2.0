@@ -84,11 +84,11 @@ namespace CustomUI.Navigation
         {
             if (!_isSelected) return;
 
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (CustomUI.Navigation.InputUtils.SafeGetKeyDown(KeyCode.LeftArrow))
             {
                 InvokePrevious();
             }
-            else if (Input.GetKeyDown(KeyCode.RightArrow))
+            else if (CustomUI.Navigation.InputUtils.SafeGetKeyDown(KeyCode.RightArrow))
             {
                 InvokeNext();
             }
